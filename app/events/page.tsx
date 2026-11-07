@@ -1,5 +1,12 @@
 import { DISCORD_INVITE } from "@/lib/site";
 
+/**
+ * Events page.
+ *
+ * Shows the community calendar placeholder while the server is brand-new:
+ * explains that first events are voted on in Discord, invites visitors to the
+ * events channel, and previews the future Discord events sync.
+ */
 export default function Events() {
   return (
     <section className="relative overflow-hidden px-6 py-20 md:px-10">
@@ -21,8 +28,8 @@ export default function Events() {
           <a href={DISCORD_INVITE} target="_blank" rel="noopener noreferrer" className="btn-cta mt-7">Join the Discord</a>
         </div>
         <p className="reveal d4 mt-10 text-sm text-[var(--muted)]">
-          This page will fill with a real calendar as events are scheduled, and will sync with Discord events once the
-          Chaotic Command bot is live.
+          This page will fill with a real calendar as events are scheduled, and will sync with Discord events once
+          Glitch, our community bot, is live.
         </p>
       </div>
     </section>

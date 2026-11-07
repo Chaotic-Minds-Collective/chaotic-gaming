@@ -55,7 +55,7 @@ export default function Discord() {
           <span className="kicker">Onboarding</span>
           <h2 className="mt-3 text-xl font-bold uppercase tracking-wide">How joining works</h2>
           <ol className="mt-5 space-y-3">
-            {["Click the invite and accept the server rules.", "Tell staff which games you play and they will point you to the right hubs.", "Say hi in #introduce-yourself and jump into voice."].map((s, i) => (
+            {["Click the invite and pass the rules check.", "Tap the verify button in #verify to unlock the server.", "Pick your games in #pick-your-world, say hi, and jump into voice."].map((s, i) => (
               <li key={s} className="flex items-start gap-4 text-sm text-[var(--muted)]">
                 <span className="font-display font-bold grad-text">{String(i + 1).padStart(2, "0")}</span>
                 {s}

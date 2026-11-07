@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Unbounded, Pirata_One, Sora, JetBrains_Mono } from "next/font/google";
-import { DISCORD_INVITE, BADGE, FAVICON, BANNER } from "@/lib/site";
+import { DISCORD_INVITE, BADGE, FAVICON, OG_IMAGE } from "@/lib/site";
 import "./globals.css";
 import MobileNav from "@/components/MobileNav";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -23,7 +23,7 @@ export const metadata = {
       "A brand-new gaming community forming now. 7 Days to Die, ARK, and Atlas hubs are open - founding members shape our servers, rules, and events.",
     url: "https://chaoticmindsgaming.com",
     siteName: "Chaotic Gaming",
-    images: [{ url: BANNER, width: 1536, height: 1024, alt: "Glitch, the Chaotic Gaming mascot" }],
+    images: [{ url: OG_IMAGE, width: 1920, height: 1080, alt: "Chaotic Gaming - Community built by gamers" }],
     type: "website",
   },
   twitter: {
@@ -31,7 +31,7 @@ export const metadata = {
     title: "Chaotic Gaming - Community built by gamers, for gamers",
     description:
       "A brand-new gaming community forming now. 7 Days to Die, ARK, and Atlas hubs are open.",
-    images: [BANNER],
+    images: [OG_IMAGE],
   },
 };
 
@@ -43,6 +43,13 @@ const nav = [
   { href: "/about", label: "About" },
 ];
 
+/**
+ * Root layout.
+ *
+ * Loads the official brand fonts (Pirata One gothic, Sora body, Unbounded
+ * display, JetBrains Mono), sets site-wide metadata and social share images,
+ * and renders the sticky nav, page body, and footer around every route.
+ */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${display.variable} ${gothic.variable} ${body.variable} ${mono.variable}`}>
