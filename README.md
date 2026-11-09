@@ -35,7 +35,7 @@ Chaotic Gaming is a division of Chaotic Minds Collective. The website is live at
 
 ## Local development
 
-1. Install Node.js 20 or newer (production runtime is configured in Vercel; verify compatibility before changing the version).
+1. Install Node.js 20.9.0 or newer (production runtime is configured in Vercel; verify compatibility before changing the version).
 2. Run `npm install`.
 3. Run `npm run dev` for local development.
 4. Run `npm run build` for a production build check.
