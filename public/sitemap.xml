@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://www.chaoticmindsgaming.com/</loc></url>
+  <url><loc>https://www.chaoticmindsgaming.com/about</loc></url>
   <url><loc>https://www.chaoticmindsgaming.com/games</loc></url>
+  <url><loc>https://www.chaoticmindsgaming.com/games/7-days-to-die</loc></url>
+  <url><loc>https://www.chaoticmindsgaming.com/games/ark</loc></url>
+  <url><loc>https://www.chaoticmindsgaming.com/games/atlas</loc></url>
+  <url><loc>https://www.chaoticmindsgaming.com/games/soulmask</loc></url>
+  <url><loc>https://www.chaoticmindsgaming.com/games/space-engineers</loc></url>
+  <url><loc>https://www.chaoticmindsgaming.com/games/palworld</loc></url>
+  <url><loc>https://www.chaoticmindsgaming.com/games/icarus</loc></url>
+  <url><loc>https://www.chaoticmindsgaming.com/games/valheim</loc></url>
+  <url><loc>https://www.chaoticmindsgaming.com/games/minecraft</loc></url>
+  <url><loc>https://www.chaoticmindsgaming.com/games/conan-exiles</loc></url>
   <url><loc>https://www.chaoticmindsgaming.com/events</loc></url>
   <url><loc>https://www.chaoticmindsgaming.com/discord</loc></url>
   <url><loc>https://www.chaoticmindsgaming.com/support</loc></url>
-  <url><loc>https://www.chaoticmindsgaming.com/about</loc></url>
 </urlset>
