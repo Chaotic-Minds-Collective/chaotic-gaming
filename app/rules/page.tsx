@@ -14,7 +14,7 @@ const sections = [
     points: [
       "Use the appropriate game hubs and channels. Keep spam, scams, malicious links, and unsolicited advertising out of the community.",
       "Self-promotion, recruiting, and commercial posts require staff approval.",
-      "Follow channel descriptions and content labels. Mature language may occur, but explicit adult content does not belong in shared or youth-accessible spaces.",
+      "Follow channel descriptions and content labels. Mature language may occur, but explicit adult content is prohibited.",
       "Do not disrupt voice channels, events, or gameplay to target or intimidate others.",
     ],
   },
@@ -39,6 +39,9 @@ const sections = [
   },
 ];
 
+/**
+ * Renders the community standards for member conduct, age eligibility, safety, and moderation.
+ */
 export default function Rules() {
   return (
     <section className="relative overflow-hidden px-6 py-20 md:px-10">

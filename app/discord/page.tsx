@@ -9,6 +9,9 @@ const rules = [
   "Mature language may occur, but explicit adult content and sexual exploitation are prohibited.",
 ];
 
+/**
+ * Renders the Discord landing page, including the server widget, joining guidance, and community rules summary.
+ */
 export default function Discord() {
   return (
     <section className="relative overflow-hidden px-6 py-20 md:px-10">
@@ -52,7 +55,7 @@ export default function Discord() {
           <ol className="mt-5 space-y-3">
             {[
               "Click the invite and pass the rules check.",
-              "Complete the server's verification and any required age/consent review before access is approved.",
+              "If you are 13–17, read the Parent and Guardian Information and wait until the separate consent process is available before attempting to join. Other eligible visitors can complete the server's verification.",
               "Pick your games in #pick-your-world, say hi, and jump into the appropriate channels.",
             ].map((s, i) => (
               <li key={s} className="flex items-start gap-4 text-sm text-[var(--muted)]">

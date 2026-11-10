@@ -1,5 +1,8 @@
 import Link from "next/link";
 
+/**
+ * Explains the planned parent and guardian consent safeguards and current intake status.
+ */
 export default function ParentalConsent() {
   return (
     <section className="relative overflow-hidden px-6 py-20 md:px-10">
