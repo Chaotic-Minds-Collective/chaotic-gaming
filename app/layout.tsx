@@ -39,6 +39,8 @@ const nav = [
   { href: "/games", label: "Games" },
   { href: "/events", label: "Events" },
   { href: "/discord", label: "Discord" },
+  { href: "/rules", label: "Rules" },
+  { href: "/parental-consent", label: "Parent Info" },
   { href: "/support", label: "Support" },
   { href: "/about", label: "About" },
 ];
@@ -46,9 +48,8 @@ const nav = [
 /**
  * Root layout.
  *
- * Loads the official brand fonts (Pirata One gothic, Sora body, Unbounded
- * display, JetBrains Mono), sets site-wide metadata and social share images,
- * and renders the sticky nav, page body, and footer around every route.
+ * Loads the official brand fonts, sets site-wide metadata and social share
+ * images, and renders the sticky nav, page body, and footer around every route.
  */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
