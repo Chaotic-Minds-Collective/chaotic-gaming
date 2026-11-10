@@ -34,7 +34,7 @@ export default function MobileNav() {
       </button>
 
       {open && (
-        <div className="absolute left-0 right-0 top-full max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-b border-[rgba(160,32,240,0.3)] bg-[rgba(7,7,10,0.97)] px-6 py-5 backdrop-blur-xl">
+        <div className="absolute left-0 right-0 top-full max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain border-b border-[rgba(160,32,240,0.3)] bg-[rgba(7,7,10,0.97)] px-6 py-5 backdrop-blur-xl">
           <ul className="space-y-1">
             {links.map((n) => (
               <li key={n.href}>
