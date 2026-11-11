@@ -39,6 +39,8 @@ const nav = [
   { href: "/games", label: "Games" },
   { href: "/events", label: "Events" },
   { href: "/discord", label: "Discord" },
+  { href: "/rules", label: "Rules" },
+  { href: "/parental-consent", label: "Parent Info" },
   { href: "/support", label: "Support" },
   { href: "/about", label: "About" },
 ];
@@ -46,16 +48,15 @@ const nav = [
 /**
  * Root layout.
  *
- * Loads the official brand fonts (Pirata One gothic, Sora body, Unbounded
- * display, JetBrains Mono), sets site-wide metadata and social share images,
- * and renders the sticky nav, page body, and footer around every route.
+ * Loads the official brand fonts, sets site-wide metadata and social share
+ * images, and renders the sticky nav, page body, and footer around every route.
  */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${display.variable} ${gothic.variable} ${body.variable} ${mono.variable}`}>
       <body className="grain">
         <nav className="sticky top-0 z-40 border-b border-[rgba(160,32,240,0.22)] bg-[rgba(7,7,10,0.82)] px-6 py-3 backdrop-blur-xl md:px-10">
-          <div className="mx-auto flex max-w-6xl items-center justify-between">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between">
             <Link href="/" className="flex items-center gap-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={BADGE} alt="Chaotic Gaming crest" className="h-11 w-11 rounded-full shadow-[0_0_18px_rgba(0,229,255,0.45)]" />

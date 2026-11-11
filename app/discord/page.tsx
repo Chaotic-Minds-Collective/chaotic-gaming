@@ -1,18 +1,16 @@
+import Link from "next/link";
 import { DISCORD_INVITE, BADGE } from "@/lib/site";
 
 const rules = [
-  "Be decent. No harassment, hate speech, or targeting.",
-  "No spam, ads, or self-promotion without staff approval.",
-  "Keep game talk in the right hubs.",
-  "Staff decisions are final - appeal in a support ticket.",
+  "Be decent. No harassment, hate speech, bullying, or targeting.",
+  "No spam, scams, or self-promotion without staff approval.",
+  "Keep game talk in the right hubs and follow channel content labels.",
+  "Members must be 13 or older; ages 13–17 need parent/guardian permission confirmed by staff before access.",
+  "Mature language may occur, but explicit adult content and sexual exploitation are prohibited.",
 ];
 
 /**
- * Discord community page.
- *
- * Renders the public /discord landing page: the join call-to-action, the live
- * Discord server widget (who is online right now), the onboarding walkthrough,
- * and the short version of the server rules.
+ * Renders the Discord landing page, including the server widget, joining guidance, and community rules summary.
  */
 export default function Discord() {
   return (
@@ -55,7 +53,11 @@ export default function Discord() {
           <span className="kicker">Onboarding</span>
           <h2 className="mt-3 text-xl font-bold uppercase tracking-wide">How joining works</h2>
           <ol className="mt-5 space-y-3">
-            {["Click the invite and pass the rules check.", "Tap the verify button in #verify to unlock the server.", "Pick your games in #pick-your-world, say hi, and jump into voice."].map((s, i) => (
+            {[
+              "Click the invite and pass the rules check.",
+              "If you are 13–17, read the Parent and Guardian Information and wait until the separate consent process is available before attempting to join. Other eligible visitors can complete the server's verification.",
+              "Pick your games in #pick-your-world, say hi, and jump into the appropriate channels.",
+            ].map((s, i) => (
               <li key={s} className="flex items-start gap-4 text-sm text-[var(--muted)]">
                 <span className="font-display font-bold grad-text">{String(i + 1).padStart(2, "0")}</span>
                 {s}
@@ -75,6 +77,10 @@ export default function Discord() {
               </li>
             ))}
           </ul>
+          <div className="mt-6 flex flex-wrap gap-4">
+            <Link href="/rules" className="text-sm text-[var(--pulse)] underline">Read the full Community Rules</Link>
+            <Link href="/parental-consent" className="text-sm text-[var(--pulse)] underline">Parent and Guardian Information</Link>
+          </div>
         </div>
       </div>
     </section>
