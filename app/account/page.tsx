@@ -123,6 +123,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
           <section className="mt-8 rounded-xl border border-white/10 bg-white/5 p-6">
             <h2 className="text-2xl font-semibold">{player.displayName || player.username}</h2>
             <p className="mt-2 text-sm text-white/60">@{player.username}</p>
+            <p className="mt-2 break-all font-mono text-xs text-white/40">Account ID: {player.id}</p>
             <p className="mt-4 text-sm text-white/70">Account status: {player.status}</p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link className="rounded-lg border border-cyan-400 px-4 py-2 font-semibold text-cyan-300" href="/store">Player store</Link>
