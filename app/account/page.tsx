@@ -30,7 +30,8 @@ type LinkedAccount = {
 
 export const dynamic = "force-dynamic";
 
-export default async function AccountPage() {
+export default async function AccountPage({ searchParams }: { searchParams: Promise<{ steam?: string }> }) {
+  const { steam: steamResult } = await searchParams;
   const token = (await cookies()).get("cg_session")?.value;
   let player: Player | null = null;
   let entitlements: Entitlement[] = [];
@@ -73,6 +74,11 @@ export default async function AccountPage() {
     <main className="mx-auto min-h-[60vh] max-w-4xl px-6 py-16">
       <p className="text-sm uppercase tracking-[0.25em] text-cyan-400">Chaotic Gaming</p>
       <h1 className="mt-3 text-4xl font-bold">Player account</h1>
+      {steamResult === "linked" && <p className="mt-4 rounded-lg border border-cyan-400/30 bg-cyan-400/10 p-4 text-sm text-cyan-200">Your Steam account was verified and linked successfully.</p>}
+      {steamResult === "state-error" && <p className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">The Steam verification session expired or did not match. Please try again.</p>}
+      {steamResult === "failed" && <p className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">Steam did not approve the account link. No account was linked.</p>}
+      {steamResult === "unavailable" && <p className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">Steam linking is temporarily unavailable. Try again later.</p>}
+      {steamResult === "misconfigured" && <p className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">Steam linking is not configured for this website yet.</p>}
       {player ? (
         <>
           <section className="mt-8 rounded-xl border border-white/10 bg-white/5 p-6">
