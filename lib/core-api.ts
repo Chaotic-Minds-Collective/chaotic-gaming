@@ -65,6 +65,10 @@ export async function getCoreServerCatalog(): Promise<CoreServerCatalogResult> {
       lastHeartbeat: typeof server.lastHeartbeat === "string" ? server.lastHeartbeat : null
     }));
 
+    if (body.data.length > 0 && servers.length === 0) {
+      return { configured: true, available: false, servers: [] };
+    }
+
     return { configured: true, available: true, servers };
   } catch {
     return { configured: true, available: false, servers: [] };
