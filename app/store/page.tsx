@@ -15,11 +15,13 @@ type Product = {
 
 export const dynamic = "force-dynamic";
 
-export default async function StorePage() {
+export default async function StorePage({ searchParams }: { searchParams: Promise<{ checkout?: string }> }) {
   let products: Product[] = [];
   let unavailable = false;
   let checkoutEnabled = false;
   const signedIn = Boolean((await cookies()).get("cg_session")?.value);
+  const params = await searchParams;
+  const checkoutCancelled = params.checkout === "cancelled";
 
   try {
     const response = await coreApiFetch("/catalog/products?currency=USD");
@@ -53,6 +55,10 @@ export default async function StorePage() {
       <p className="mt-3 max-w-2xl text-white/65">
         Digital items and game entitlements are managed through your shared player account.
       </p>
+
+      {checkoutCancelled && (
+        <p role="status" className="mt-5 rounded-lg border border-white/15 bg-white/5 p-4 text-sm text-white/70">Checkout was cancelled. No payment was taken.</p>
+      )}
 
       {checkoutEnabled ? (
         <p className="mt-5 rounded-lg border border-cyan-400/30 bg-cyan-400/10 p-4 text-sm text-cyan-100">
