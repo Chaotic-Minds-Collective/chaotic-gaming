@@ -81,22 +81,28 @@ test('me and entitlements expose invalid JSON as 502 and preserve valid upstream
   }
 });
 
-test('logout retains cookie on Core errors, redirects on success, and reports unconfirmed revocation after transport failures', async () => {
-  for (const outcome of [204, 400, 401, 500, 'unreachable', 'no-cookie']) {
+test('logout always expires the browser session and warns when Core revocation is unconfirmed', async () => {
+  for (const outcome of [200, 204, 400, 401, 403, 429, 500, 503, 'unreachable', 'no-cookie']) {
+    const calls = [];
     const { POST } = load('app/api/auth/logout/route.ts', {
       'next/headers': cookieMock(outcome === 'no-cookie' ? {} : { cg_session: 'synthetic' }),
-      '@/lib/core-api': { coreApiFetch: async () => { if (outcome === 'unreachable') throw Error('timeout'); return new Response(null, { status: outcome }); } },
+      '@/lib/core-api': { coreApiFetch: async (url, init, token) => {
+        calls.push([url, init.method, token]);
+        if (outcome === 'unreachable') throw Error('timeout');
+        return new Response(null, { status: outcome });
+      } },
     });
     const result = await POST(request());
-    if ([400, 500].includes(outcome)) {
-      assert.equal(result.status, 503);
-      assert.equal(result.cookies.get('cg_session'), undefined);
-    } else {
-      assert.equal(result.status, 303);
-      assert.equal(result.headers.get('location'), outcome === 'unreachable' ? 'https://site.test/account?logout=unconfirmed' : 'https://site.test/account');
-      assert.equal(result.cookies.get('cg_session').maxAge, 0);
-      assert.equal(result.cookies.get('cg_session').value, '');
-    }
+    const unconfirmed = [400, 403, 429, 500, 503, 'unreachable'].includes(outcome);
+    assert.equal(result.status, 303);
+    assert.equal(result.headers.get('location'), unconfirmed ? 'https://site.test/account?logout=unconfirmed' : 'https://site.test/account');
+    const cookie = result.cookies.get('cg_session');
+    assert.equal(cookie.maxAge, 0);
+    assert.equal(cookie.value, '');
+    assert.equal(cookie.path, '/');
+    assert.equal(cookie.httpOnly, true);
+    assert.equal(cookie.sameSite, 'lax');
+    assert.deepEqual(calls, outcome === 'no-cookie' ? [] : [['/auth/logout', 'POST', 'synthetic']]);
   }
 });
 

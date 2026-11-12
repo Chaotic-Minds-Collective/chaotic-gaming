@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     try {
       const upstream = await coreApiFetch("/auth/logout", { method: "POST" }, token);
       if (!upstream.ok && upstream.status !== 401) {
-        return NextResponse.json({ error: { code: "LOGOUT_FAILED", message: "Sign out could not be confirmed. Please try again." } }, { status: 503 });
+        revocationUnconfirmed = true;
       }
     } catch {
       // Preserve local sign-out while reporting that Core revocation is unknown.
