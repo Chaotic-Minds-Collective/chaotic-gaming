@@ -20,19 +20,30 @@ type Entitlement = {
   productType: string;
 };
 
+type LinkedAccount = {
+  provider: string;
+  externalId: string;
+  externalUsername: string | null;
+  verifiedAt: string | null;
+  linkedAt: string;
+};
+
 export const dynamic = "force-dynamic";
 
 export default async function AccountPage() {
   const token = (await cookies()).get("cg_session")?.value;
   let player: Player | null = null;
   let entitlements: Entitlement[] = [];
+  let linkedAccounts: LinkedAccount[] = [];
   let accountUnavailable = false;
+  let linkedAccountsUnavailable = false;
 
   if (token) {
     try {
-      const [profileResponse, entitlementResponse] = await Promise.all([
+      const [profileResponse, entitlementResponse, linkedResponse] = await Promise.all([
         coreApiFetch("/auth/me", {}, token),
         coreApiFetch("/account/entitlements", {}, token),
+        coreApiFetch("/auth/linked-accounts", {}, token),
       ]);
       if (profileResponse.ok) {
         const payload = await parseCoreResponse(profileResponse) as { data?: Player };
@@ -44,10 +55,19 @@ export default async function AccountPage() {
       } else {
         accountUnavailable = true;
       }
+      if (linkedResponse.ok) {
+        const payload = await parseCoreResponse(linkedResponse) as { data?: LinkedAccount[] };
+        linkedAccounts = payload.data ?? [];
+      } else {
+        linkedAccountsUnavailable = true;
+      }
     } catch {
       accountUnavailable = true;
+      linkedAccountsUnavailable = true;
     }
   }
+
+  const steamAccount = linkedAccounts.find((account) => account.provider === "steam");
 
   return (
     <main className="mx-auto min-h-[60vh] max-w-4xl px-6 py-16">
@@ -65,6 +85,24 @@ export default async function AccountPage() {
                 <button className="rounded-lg border border-white/20 px-4 py-2 font-semibold" type="submit">Sign out</button>
               </form>
             </div>
+          </section>
+
+          <section className="mt-8 rounded-xl border border-white/10 bg-white/5 p-6">
+            <h2 className="text-xl font-semibold">Linked game accounts</h2>
+            <p className="mt-2 text-sm text-white/60">Link verified game identities to connect your website, Discord and game characters.</p>
+            {linkedAccountsUnavailable ? (
+              <p className="mt-4 text-sm text-white/60">Linked account information is temporarily unavailable.</p>
+            ) : steamAccount ? (
+              <div className="mt-4 rounded-lg border border-white/10 p-4">
+                <p className="font-semibold">Steam <span className="ml-2 text-xs text-cyan-300">VERIFIED</span></p>
+                <p className="mt-1 break-all font-mono text-sm text-white/65">{steamAccount.externalId}</p>
+              </div>
+            ) : (
+              <div className="mt-4">
+                <Link className="inline-flex rounded-lg bg-cyan-400 px-4 py-2 font-semibold text-slate-950" href="/api/account/link/steam/start">Link Steam account</Link>
+                <p className="mt-2 text-xs text-white/45">You'll verify ownership on Steam before the account is linked.</p>
+              </div>
+            )}
           </section>
 
           <section className="mt-8">
