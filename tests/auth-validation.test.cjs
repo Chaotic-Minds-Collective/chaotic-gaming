@@ -81,7 +81,7 @@ test('me and entitlements expose invalid JSON as 502 and preserve valid upstream
   }
 });
 
-test('logout retains cookie on Core errors, redirects on success, and preserves unreachable-Core policy', async () => {
+test('logout retains cookie on Core errors, redirects on success, and reports unconfirmed revocation after transport failures', async () => {
   for (const outcome of [204, 400, 401, 500, 'unreachable', 'no-cookie']) {
     const { POST } = load('app/api/auth/logout/route.ts', {
       'next/headers': cookieMock(outcome === 'no-cookie' ? {} : { cg_session: 'synthetic' }),
@@ -93,7 +93,8 @@ test('logout retains cookie on Core errors, redirects on success, and preserves 
       assert.equal(result.cookies.get('cg_session'), undefined);
     } else {
       assert.equal(result.status, 303);
-      assert.equal(result.headers.get('location'), 'https://site.test/account');
+      assert.equal(result.headers.get('location'), outcome === 'unreachable' ? 'https://site.test/account?logout=unconfirmed' : 'https://site.test/account');
+      assert.equal(result.cookies.get('cg_session').maxAge, 0);
       assert.equal(result.cookies.get('cg_session').value, '');
     }
   }
@@ -112,6 +113,16 @@ test('list pages distinguish malformed data from valid empty arrays', async () =
       assert.equal(html.includes('unavailable'), !Array.isArray(data));
       assert.equal(html.includes(empty), Array.isArray(data));
     }
+  }
+});
+
+test('account shows the unconfirmed logout notice only for the explicit outcome', async () => {
+  for (const logout of [undefined, 'unconfirmed', 'other', ['unconfirmed']]) {
+    const Page = load('app/account/page.tsx', pageMocks(async () => { throw Error('Core must not be called without a session'); })).default;
+    const html = renderToStaticMarkup(await Page({ searchParams: Promise.resolve({ logout }) }));
+    assert.equal(html.includes('could not confirm session revocation'), logout === 'unconfirmed');
+    assert.equal(html.includes('may still be active elsewhere'), logout === 'unconfirmed');
+    assert.match(html, /Sign in or create an account/);
   }
 });
 

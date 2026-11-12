@@ -83,6 +83,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
     <main className="mx-auto min-h-[60vh] max-w-4xl px-6 py-16">
       <p className="text-sm uppercase tracking-[0.25em] text-cyan-400">Chaotic Gaming</p>
       <h1 className="mt-3 text-4xl font-bold">Player account</h1>
+      {params.logout === "unconfirmed" && <p role="status" className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">You signed out of this browser, but the account service could not confirm session revocation. Your session may still be active elsewhere.</p>}
       {steamResult === "linked" && <p className="mt-4 rounded-lg border border-cyan-400/30 bg-cyan-400/10 p-4 text-sm text-cyan-200">Your Steam account was verified and linked successfully.</p>}
       {steamResult === "state-error" && <p className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">The Steam verification session expired or did not match. Please try again.</p>}
       {steamResult === "cancelled" && <p className="mt-4 text-sm text-white/70">Steam linking was cancelled. You can try again.</p>}
