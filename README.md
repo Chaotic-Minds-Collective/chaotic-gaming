@@ -2,68 +2,69 @@
 
 Community built by gamers, for gamers.
 
-Chaotic Gaming is a division of Chaotic Minds Collective. The website is live at https://www.chaoticmindsgaming.com and is the community's public front door. Discord is the primary community space.
+Chaotic Gaming is a division of Chaotic Minds Collective. The website is the community's public front door and Discord is the primary community space.
 
 ## Stack
 
-- Next.js 16.4.5 (App Router), React 18.3.1, TypeScript
-- Tailwind CSS 3
-- Vercel deployment from the `main` branch
-- Static game catalog data in `lib/games.ts`; shared site constants in `lib/site.ts`
-- Player accounts use the Chaotic Gaming Core API; the website stores no database state.
-
-## Player accounts
-
-The account portal uses a same-origin Next.js backend-for-frontend (BFF):
-
-- The browser calls `/api/auth/*` on this site.
-- Server route handlers forward requests to Core using `CORE_API_BASE_URL`.
-- Core session tokens are stored only in an HttpOnly, SameSite=Lax cookie; they are never exposed to browser JavaScript or localStorage.
-- The website proxies login, registration, session lookup, logout, linked-account listing and Discord account linking.
-- Discord OAuth2 client secrets remain in Core only.
-
-Set `CORE_API_BASE_URL` in the Vercel server environment to the HTTPS origin of the deployed Core API. Do not use a `NEXT_PUBLIC_` variable for this value. For local development, copy `.env.example` to `.env.local` and point it to a loopback Core instance.
-
-The Core API and Discord OAuth2 application must be configured before registration or linking can succeed. Register the exact Discord redirect URI `https://www.chaoticmindsgaming.com/account/link/discord/callback` in the Discord Developer Portal and configure the matching redirect URI and OAuth credentials in Core.
+- Next.js App Router, React and TypeScript
+- Tailwind CSS
+- Vercel hosting (existing public site)
+- Chaotic Gaming Core API for player accounts, entitlements, public servers and plugin catalogue
+- Server-side API calls; no Core service credential is exposed to browser bundles
 
 ## Site structure
 
 | Route | Purpose |
 | --- | --- |
-| `/` | Founding-member pitch and game community catalog |
-| `/about` | Chaotic Gaming's relationship to Chaotic Minds Collective |
-| `/games` | Game catalog |
-| `/games/[game]` | Static details page for each catalog game |
-| `/discord` | Discord invite, widget, onboarding walkthrough, and short rules |
-| `/events` | Events announcement and future calendar placeholder |
-| `/support` | Future supporter options; nothing is currently for sale |
-| `/account` | Player profile and linked identities |
+| `/` | Community front page and game catalogue |
+| `/games` | Game catalogue |
+| `/discord` | Discord invite and onboarding |
+| `/account` | Player profile, entitlements and linked game accounts |
 | `/account/login` | Player sign-in |
 | `/account/register` | Player registration |
+| `/store` | Product catalogue; checkout remains disabled until payment integration is approved |
+| `/servers` | Public production server status and connection details |
+| `/mods` | Plugin/mod catalogue; installation is not performed by the website |
 
 ## Local development
 
-1. Install Node.js 20.9.0 or newer.
-2. Run `npm install`.
-3. Copy `.env.example` to `.env.local` and set `CORE_API_BASE_URL` when Core is available.
-4. Run `npm run dev` for local development.
-5. Run `npm run build` for a production build check.
+1. Install Node.js 22 or newer.
+2. Copy `.env.example` to `.env.local`.
+3. Set `CORE_API_BASE_URL` to a reachable Core API instance.
+4. Set `STEAM_OPENID_RETURN_URL` to the exact callback URL configured in Core.
+5. Run `npm install`.
+6. Run `npm run dev`.
+7. Run `npm run build` to verify a production build.
 
-Never add Core session tokens, Discord OAuth secrets, or database credentials to the website repository.
+## Steam account linking
 
-## Deployment
+The player account page supports Steam OpenID linking. The start route creates a short-lived, HTTP-only state cookie; the callback validates that state and sends the signed Steam assertion to Core for server-side verification.
 
-Vercel deploys the site from `main`. Configure `CORE_API_BASE_URL` as a server-only Vercel environment variable before enabling account functionality. No production environment variables or deployments are changed by this repository branch.
+The following server-only environment variables must be configured in both the website and Core:
 
-## Community servers
+- `CORE_API_BASE_URL` — Core API origin.
+- `STEAM_OPENID_RETURN_URL` — exact callback URL, for example `https://www.chaoticmindsgaming.com/api/account/link/steam/callback`.
 
-Game-server launches are community-voted. Members decide which games launch first, as well as rates and rules, in Discord. The website currently lists these game hubs: 7 Days to Die, ARK: Survival Evolved, ATLAS, Soulmask, Space Engineers, Palworld, Icarus, Valheim, Minecraft, and Conan Exiles. Listing a game does not mean its dedicated server is online; its status is shown on the site.
+Do not add either variable with a `NEXT_PUBLIC_` prefix. The website does not need a Steam Web API key for OpenID ownership verification. The Core API rejects replayed assertions and prevents one Steam account from being actively linked to multiple player accounts.
 
-## Discord
+## Deployment and release status
 
-The website's shared invite is maintained in `lib/site.ts`. Keep any docs or other public invite references aligned with that constant.
+The existing public site remains on its current production branch. The player portal and Core integration are developed on a separate branch and must pass preview/review checks before any merge or production release. No production deployment or environment-variable change is performed by this repository work.
 
-## Related
+## Security
 
-- Parent organization: Chaotic Minds Collective
-- Discord invite: https://discord.gg/jY5efCnk6f
+- Keep Core API calls server-side.
+- Never expose service credentials in client-side bundles.
+- Do not store Steam passwords.
+- Never link game identities by username alone; use verified ownership.
+- Store no payment credentials in this repository.
+
+## Discord account linking
+
+The account page can link a Discord identity through the Core API's OAuth2 authorization-code flow. The website creates a short-lived state challenge, binds it to the signed-in session, and validates the callback issuer before forwarding the code to Core. The browser never receives the Discord client secret or Core session token.
+
+Configure `DISCORD_OAUTH_CLIENT_ID`, `DISCORD_OAUTH_CLIENT_SECRET` and `DISCORD_OAUTH_REDIRECT_URI` in the Core API environment. Register this exact redirect URI in the Discord Developer Portal:
+
+`https://www.chaoticmindsgaming.com/api/account/link/discord/callback`
+
+The requested scope is `identify` only. Discord access tokens are used server-side for identity verification and are not stored.
