@@ -37,11 +37,14 @@ export const metadata = {
 
 const nav = [
   { href: "/games", label: "Games" },
+  { href: "/servers", label: "Servers" },
+  { href: "/mods", label: "Mods" },
+  { href: "/store", label: "Store" },
+  { href: "/account", label: "Account" },
   { href: "/events", label: "Events" },
   { href: "/discord", label: "Discord" },
   { href: "/rules", label: "Rules" },
   { href: "/parental-consent", label: "Parent Info" },
-  { href: "/account", label: "Account" },
   { href: "/support", label: "Support" },
   { href: "/about", label: "About" },
 ];
@@ -62,7 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <ul className="hidden items-center gap-6 lg:flex">
               {nav.map((n) => (
                 <li key={n.href}>
-                  <Link href={n.href} className="font-mono2 text-[10px] uppercase tracking-[0.2em] text-[var(--muted)] transition hover:text-[var(--pulse)]">
+                  <Link href={n.href} className="font-mono2 text-[11px] uppercase tracking-[0.2em] text-[var(--muted)] transition hover:text-[var(--pulse)]">
                     {n.label}
                   </Link>
                 </li>

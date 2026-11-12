@@ -1,45 +1,53 @@
-import { NextResponse } from "next/server";
-import {
-  callCoreApi,
-  isRecord,
-  requestHasSameOrigin,
-  setSessionCookie,
-} from "@/lib/server/core-api";
+import { validateAuthRequest } from "@/lib/auth-request";
+import { NextRequest, NextResponse } from "next/server";
+import { coreApiFetch, parseCoreResponse } from "@/lib/core-api";
 
-export async function POST(request: Request) {
-  if (!requestHasSameOrigin(request)) {
-    return NextResponse.json({ error: { code: "ORIGIN_FORBIDDEN", message: "Request origin is not allowed." } }, { status: 403 });
-  }
+const COOKIE_NAME = "cg_session";
+const SESSION_MAX_AGE = 7 * 24 * 60 * 60;
 
-  const body: unknown = await request.json().catch(() => null);
-  if (!isRecord(body)) {
-    return NextResponse.json({ error: { code: "INVALID_REQUEST", message: "Enter your account details." } }, { status: 400 });
-  }
+export async function POST(request: NextRequest) {
+  const invalidRequest = validateAuthRequest(request);
+  if (invalidRequest) return invalidRequest;
 
-  const result = await callCoreApi("/auth/register", { method: "POST", body });
-  if (result.status >= 400) {
-    const { forwardCoreResponse } = await import("@/lib/server/core-api");
-    return forwardCoreResponse(result);
-  }
-
-  const envelope = isRecord(result.body) ? result.body : {};
-  const data = isRecord(envelope.data) ? envelope.data : {};
-  const session = isRecord(data.session) ? data.session : {};
-  if (typeof session.token !== "string" || typeof session.expiresAt !== "string") {
-    return NextResponse.json({ error: { code: "INVALID_CORE_SESSION", message: "Account services returned an invalid session." } }, { status: 502 });
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: { code: "INVALID_JSON", message: "A valid JSON request is required." } }, { status: 400 });
   }
 
   try {
-    await setSessionCookie(session.token, session.expiresAt);
-  } catch {
-    return NextResponse.json({ error: { code: "SESSION_SETUP_FAILED", message: "Your account was created, but sign-in could not be completed. Please log in." } }, { status: 502 });
-  }
+    const upstream = await coreApiFetch("/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const payload = await parseCoreResponse(upstream) as {
+      data?: { playerId?: string; username?: string; session?: { token?: string; expiresAt?: string } };
+      error?: unknown;
+    };
 
-  return NextResponse.json({
-    data: {
-      playerId: typeof data.playerId === "string" ? data.playerId : null,
-      username: typeof data.username === "string" ? data.username : null,
-    },
-    requestId: typeof envelope.requestId === "string" ? envelope.requestId : undefined,
-  }, { status: result.status, headers: { "Cache-Control": "no-store" } });
+    if (!upstream.ok) return NextResponse.json(payload, { status: upstream.status });
+    const token = payload.data?.session?.token;
+    if (!token) return NextResponse.json({ error: { code: "INVALID_CORE_RESPONSE", message: "The account service did not issue a session." } }, { status: 502 });
+
+    const response = NextResponse.json({
+      data: {
+        playerId: payload.data?.playerId,
+        username: payload.data?.username,
+        expiresAt: payload.data?.session?.expiresAt,
+      },
+    }, { status: upstream.status });
+
+    response.cookies.set(COOKIE_NAME, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: SESSION_MAX_AGE,
+    });
+    return response;
+  } catch {
+    return NextResponse.json({ error: { code: "ACCOUNT_SERVICE_UNAVAILABLE", message: "Account registration is temporarily unavailable." } }, { status: 503 });
+  }
 }
