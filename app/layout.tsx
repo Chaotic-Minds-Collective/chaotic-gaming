@@ -37,6 +37,9 @@ export const metadata = {
 
 const nav = [
   { href: "/games", label: "Games" },
+  { href: "/servers", label: "Servers" },
+  { href: "/store", label: "Store" },
+  { href: "/account", label: "Account" },
   { href: "/events", label: "Events" },
   { href: "/discord", label: "Discord" },
   { href: "/rules", label: "Rules" },
@@ -45,12 +48,6 @@ const nav = [
   { href: "/about", label: "About" },
 ];
 
-/**
- * Root layout.
- *
- * Loads the official brand fonts, sets site-wide metadata and social share
- * images, and renders the sticky nav, page body, and footer around every route.
- */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${display.variable} ${gothic.variable} ${body.variable} ${mono.variable}`}>
@@ -64,10 +61,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 Chaotic<span className="font-gothic text-2xl tracking-normal"> Gaming</span>
               </span>
             </Link>
-            <ul className="hidden items-center gap-8 md:flex">
+            <ul className="hidden items-center gap-6 md:flex">
               {nav.map((n) => (
                 <li key={n.href}>
-                  <Link href={n.href} className="font-mono2 text-[11px] uppercase tracking-[0.25em] text-[var(--muted)] transition hover:text-[var(--pulse)]">
+                  <Link href={n.href} className="font-mono2 text-[11px] uppercase tracking-[0.2em] text-[var(--muted)] transition hover:text-[var(--pulse)]">
                     {n.label}
                   </Link>
                 </li>
