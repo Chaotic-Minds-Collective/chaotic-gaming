@@ -1,4 +1,4 @@
-import { timingSafeEqual } from "node:crypto";
+import { createHash, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { coreApiFetch } from "@/lib/core-api";
@@ -26,11 +26,9 @@ export async function GET(request: NextRequest) {
   const sessionToken = cookieStore.get(SESSION_COOKIE)?.value;
   const url = new URL(request.url);
   const state = url.searchParams.get("state");
+  const [storedState, storedSessionBinding] = stateCookie?.split(".") ?? [];
 
-  if (!state || !stateCookie || state.length !== stateCookie.length) {
-    return redirectToAccount(request, "state-error");
-  }
-  if (!timingSafeEqual(Buffer.from(state), Buffer.from(stateCookie))) {
+  if (!state || !storedState || !storedSessionBinding || state.length !== storedState.length) {
     return redirectToAccount(request, "state-error");
   }
   if (!sessionToken) {
@@ -43,6 +41,13 @@ export async function GET(request: NextRequest) {
       maxAge: 0,
     });
     return response;
+  }
+  const sessionBinding = createHash("sha256").update(sessionToken).digest("hex");
+  if (
+    !timingSafeEqual(Buffer.from(state), Buffer.from(storedState))
+    || !timingSafeEqual(Buffer.from(sessionBinding), Buffer.from(storedSessionBinding))
+  ) {
+    return redirectToAccount(request, "state-error");
   }
   if (!callbackUrl) return redirectToAccount(request, "unavailable");
 
