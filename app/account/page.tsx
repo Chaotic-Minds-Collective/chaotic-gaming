@@ -76,7 +76,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
       <h1 className="mt-3 text-4xl font-bold">Player account</h1>
       {steamResult === "linked" && <p className="mt-4 rounded-lg border border-cyan-400/30 bg-cyan-400/10 p-4 text-sm text-cyan-200">Your Steam account was verified and linked successfully.</p>}
       {steamResult === "state-error" && <p className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">The Steam verification session expired or did not match. Please try again.</p>}
-      {steamResult === "failed" && <p className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">Steam did not approve the account link. No account was linked.</p>}
+      {steamResult === "failed" && <p className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">The link request expired, the Steam account may already be linked elsewhere, or verification failed. No account was changed.</p>}
       {steamResult === "unavailable" && <p className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">Steam linking is temporarily unavailable. Try again later.</p>}
       {steamResult === "misconfigured" && <p className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">Steam linking is not configured for this website yet.</p>}
       {player ? (
