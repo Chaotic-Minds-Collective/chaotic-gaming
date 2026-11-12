@@ -6,6 +6,10 @@ import { DISCORD_INVITE } from "@/lib/site";
 
 const links = [
   { href: "/games", label: "Games" },
+  { href: "/servers", label: "Servers" },
+  { href: "/mods", label: "Mods" },
+  { href: "/store", label: "Store" },
+  { href: "/account", label: "Account" },
   { href: "/events", label: "Events" },
   { href: "/discord", label: "Discord" },
   { href: "/rules", label: "Rules" },
@@ -14,14 +18,11 @@ const links = [
   { href: "/about", label: "About" },
 ];
 
-/**
- * Renders the responsive navigation toggle and its expandable mobile menu.
- */
 export default function MobileNav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="md:hidden">
+    <div className="lg:hidden">
       <button
         aria-label={open ? "Close menu" : "Open menu"}
         aria-expanded={open}
