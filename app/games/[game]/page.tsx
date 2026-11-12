@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { DISCORD_INVITE } from "@/lib/site";
 import { getCoreServers, type CoreGameKey } from "@/lib/core-api";
 
+export const revalidate = 60;
+
 const CORE_GAME_KEYS: Record<string, CoreGameKey> = {
   atlas: "atlas",
   "7-days-to-die": "7dtd",
