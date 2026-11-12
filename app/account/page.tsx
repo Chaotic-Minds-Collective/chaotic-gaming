@@ -21,6 +21,16 @@ type Entitlement = {
   quantity: number;
 };
 
+type PurchaseOrder = {
+  id: string;
+  status: string;
+  currency: string;
+  totalMinor: string;
+  createdAt: string;
+  paymentStatus: string | null;
+  items: Array<{ name: string; sku: string; quantity: number; unitAmountMinor: string }>;
+};
+
 type LinkedAccount = {
   provider: string;
   externalId: string;
@@ -38,16 +48,19 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
   let player: Player | null = null;
   let entitlements: Entitlement[] = [];
   let linkedAccounts: LinkedAccount[] = [];
+  let orders: PurchaseOrder[] = [];
+  let ordersUnavailable = false;
   let accountUnavailable = false;
   let profileUnauthenticated = false;
   let linkedAccountsUnavailable = false;
 
   if (token) {
     try {
-      const [profileResponse, entitlementResponse, linkedResponse] = await Promise.all([
+      const [profileResponse, entitlementResponse, linkedResponse, ordersResponse] = await Promise.all([
         coreApiFetch("/auth/me", {}, token),
         coreApiFetch("/account/entitlements", {}, token),
         coreApiFetch("/auth/linked-accounts", {}, token),
+        coreApiFetch("/account/orders", {}, token),
       ]);
       if (profileResponse.ok) {
         const payload = await parseCoreResponse(profileResponse) as { data?: Player };
@@ -71,6 +84,13 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
         else linkedAccountsUnavailable = true;
       } else {
         linkedAccountsUnavailable = true;
+      }
+      if (ordersResponse.ok) {
+        const payload = await parseCoreResponse(ordersResponse) as { data?: PurchaseOrder[] };
+        if (Array.isArray(payload?.data)) orders = payload.data;
+        else ordersUnavailable = true;
+      } else {
+        ordersUnavailable = true;
       }
     } catch {
       accountUnavailable = true;
@@ -116,6 +136,38 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
               <div className="mt-4">
                 <a className="inline-flex rounded-lg bg-cyan-400 px-4 py-2 font-semibold text-slate-950" href="/api/account/link/steam/start">Link Steam account</a>
                 <p className="mt-2 text-xs text-white/45">You'll verify ownership on Steam before the account is linked.</p>
+              </div>
+            )}
+          </section>
+
+          <section className="mt-8">
+            <h2 className="text-2xl font-semibold">Purchase history</h2>
+            {ordersUnavailable ? (
+              <p className="mt-3 text-sm text-white/60">Purchase history is temporarily unavailable.</p>
+            ) : orders.length === 0 ? (
+              <p className="mt-3 text-sm text-white/60">You do not have any orders yet.</p>
+            ) : (
+              <div className="mt-4 space-y-3">
+                {orders.map((order) => (
+                  <article key={order.id} className="rounded-lg border border-white/10 bg-white/5 p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="font-semibold">Order #{order.id.slice(0, 8)}</p>
+                        <p className="mt-1 text-xs text-white/55">{new Date(order.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">{(Number(order.totalMinor) / 100).toLocaleString("en-US", { style: "currency", currency: order.currency })}</p>
+                        <p className="mt-1 text-xs uppercase tracking-wide text-cyan-300">{order.status.replaceAll("_", " ")}</p>
+                      </div>
+                    </div>
+                    <ul className="mt-3 space-y-1 text-sm text-white/65">
+                      {order.items.map((item, index) => (
+                        <li key={order.id + "-" + index}>{item.name} × {item.quantity}</li>
+                      ))}
+                    </ul>
+                    {order.paymentStatus && <p className="mt-3 text-xs text-white/45">Payment: {order.paymentStatus.replaceAll("_", " ")}</p>}
+                  </article>
+                ))}
               </div>
             )}
           </section>
