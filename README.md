@@ -61,7 +61,13 @@ The existing public site remains on its current production branch. The player po
 
 ## Discord account linking
 
-The account page can link a Discord identity through the Core API's OAuth2 authorization-code flow. The website creates a short-lived state challenge, binds it to the signed-in session, and validates the callback issuer before forwarding the code to Core. The browser never receives the Discord client secret or Core session token.
+The account page can link a Discord identity through the Core API's OAuth2 authorization-code flow. The website creates a short-lived state challenge, binds it to the signed-in session, and validates the callback issuer before forwarding the code to Core. <!-- coderabbit-ai-generated:v1 -->
+
+<!-- coderabbit-ai-generated-section:v1:a06184e9d19211fbdcd3d98d62a4e27a7b25e097aae9eb66c64b5791f4bc4c0f -->
+
+The browser never receives the Discord client secret. The website sends the Core session token to the browser in an HttpOnly cookie, which browser JavaScript cannot read.
+
+<!-- /coderabbit-ai-generated:v1 -->
 
 Configure `DISCORD_OAUTH_CLIENT_ID`, `DISCORD_OAUTH_CLIENT_SECRET` and `DISCORD_OAUTH_REDIRECT_URI` in the Core API environment. Register this exact redirect URI in the Discord Developer Portal:
 

@@ -38,6 +38,24 @@ type PurchaseOrder = {
   items: Array<{ name: string; sku: string; quantity: number; unitAmountMinor: string }>;
 };
 
+function isPurchaseOrder(value: unknown): value is PurchaseOrder {
+  if (!value || typeof value !== "object") return false;
+  const order = value as Record<string, unknown>;
+  return typeof order.id === "string"
+    && typeof order.status === "string"
+    && typeof order.currency === "string" && /^[A-Za-z]{3}$/.test(order.currency)
+    && typeof order.totalMinor === "string" && /^\d+$/.test(order.totalMinor) && Number.isFinite(Number(order.totalMinor))
+    && typeof order.createdAt === "string" && Number.isFinite(Date.parse(order.createdAt))
+    && (order.paymentStatus === null || typeof order.paymentStatus === "string")
+    && Array.isArray(order.items) && order.items.every((item: unknown) => {
+      if (!item || typeof item !== "object") return false;
+      const entry = item as Record<string, unknown>;
+      return typeof entry.name === "string" && typeof entry.sku === "string"
+        && typeof entry.quantity === "number" && Number.isFinite(entry.quantity)
+        && typeof entry.unitAmountMinor === "string";
+    });
+}
+
 type LinkedAccount = {
   provider: string;
   externalId: string;
@@ -68,7 +86,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
         coreApiFetch("/auth/me", {}, token),
         coreApiFetch("/account/entitlements", {}, token),
         coreApiFetch("/auth/linked-accounts", {}, token),
-        coreApiFetch("/account/orders", {}, token),
+        coreApiFetch("/account/orders", {}, token).catch(() => null),
       ]);
       if (profileResponse.ok) {
         const payload = await parseCoreResponse(profileResponse) as { data?: Player };
@@ -93,9 +111,9 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
       } else {
         linkedAccountsUnavailable = true;
       }
-      if (ordersResponse.ok) {
-        const payload = await parseCoreResponse(ordersResponse) as { data?: PurchaseOrder[] };
-        if (Array.isArray(payload?.data)) orders = payload.data;
+      if (ordersResponse?.ok) {
+        const payload = await parseCoreResponse(ordersResponse).catch(() => null) as { data?: unknown } | null;
+        if (Array.isArray(payload?.data) && payload.data.every(isPurchaseOrder)) orders = payload.data;
         else ordersUnavailable = true;
       } else {
         ordersUnavailable = true;
@@ -120,7 +138,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
       {steamResult === "failed" && <p className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">The link request expired, the Steam account may already be linked elsewhere, or verification failed. No account was changed.</p>}
       {steamResult === "unavailable" && <p className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">Steam linking is temporarily unavailable. Try again later.</p>}
       {steamResult === "misconfigured" && <p className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">Steam linking is not configured for this website yet.</p>}
-      {discordResult === "linked" && <p role="status" className="mt-4 rounded-lg border border-cyan-400/30 bg-cyan-400/10 p-4 text-sm text-cyan-200">Your Discord account was verified and linked successfully.</p>}
+      {discordResult === "linked" && player && !profileUnauthenticated && !linkedAccountsUnavailable && typeof discordAccount?.verifiedAt === "string" && discordAccount.verifiedAt.length > 0 && <p role="status" className="mt-4 rounded-lg border border-cyan-400/30 bg-cyan-400/10 p-4 text-sm text-cyan-200">Your Discord account was verified and linked successfully.</p>}
       {discordResult === "cancelled" && <p className="mt-4 text-sm text-white/70">Discord linking was cancelled. You can try again.</p>}
       {discordResult === "state-error" && <p className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">The Discord verification session expired or did not match. Please try again.</p>}
       {discordResult === "failed" && <p className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">Discord verification failed or this account is already linked elsewhere. No account was changed.</p>}

@@ -12,7 +12,8 @@ export default function EntitlementClaimButton({ entitlementId }: { entitlementI
     setError(null);
     try {
       const response = await fetch("/api/account/entitlements/" + encodeURIComponent(entitlementId) + "/claim", {
-        method: "POST"
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
       });
       const payload = await response.json().catch(() => null);
       if (!response.ok) {

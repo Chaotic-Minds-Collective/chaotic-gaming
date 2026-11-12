@@ -57,7 +57,7 @@ export default async function StorePage({ searchParams }: { searchParams: Promis
       </p>
 
       {checkoutCancelled && (
-        <p role="status" className="mt-5 rounded-lg border border-white/15 bg-white/5 p-4 text-sm text-white/70">Checkout was cancelled. No payment was taken.</p>
+        <p role="status" className="mt-5 rounded-lg border border-white/15 bg-white/5 p-4 text-sm text-white/70">Checkout was cancelled.</p>
       )}
 
       {checkoutEnabled ? (

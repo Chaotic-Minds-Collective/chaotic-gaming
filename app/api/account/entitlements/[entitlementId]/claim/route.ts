@@ -1,11 +1,16 @@
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { coreApiFetch, parseCoreResponse } from "@/lib/core-api";
 
+import { validateAuthRequest } from "@/lib/auth-request";
+
 export async function POST(
-  _request: Request,
+  request: NextRequest,
   context: { params: Promise<{ entitlementId: string }> }
 ) {
+  const invalidRequest = validateAuthRequest(request);
+  if (invalidRequest) return invalidRequest;
+
   const { entitlementId } = await context.params;
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(entitlementId)) {
     return NextResponse.json({ error: { code: "INVALID_ENTITLEMENT_ID", message: "The entitlement ID is invalid." } }, { status: 400 });

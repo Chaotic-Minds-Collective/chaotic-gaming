@@ -107,6 +107,7 @@ test('logout always expires the browser session and warns when Core revocation i
 });
 
 const pageMocks = (fetch, values = {}) => ({
+  '@/components/EntitlementClaimButton': () => null,
   '@/lib/core-api': { ...core, coreApiFetch: fetch },
   'next/headers': cookieMock(values),
   'next/link': ({ href, children, ...props }) => require('react').createElement('a', { href, ...props }, children),
@@ -166,4 +167,89 @@ test('Steam callback rejects unequal UTF-8 byte lengths safely and accepts cance
     assert.equal(new URL(result.headers.get('location')).searchParams.get('steam'), expected);
     assert.equal(result.cookies.get('cg_steam_link_state').value, '');
   }
+});
+
+test('purchase history isolates outages and rejects malformed orders without losing account data', async () => {
+  const valid = { id: 'order-123', status: 'paid', currency: 'USD', totalMinor: '100', createdAt: '2026-01-01', paymentStatus: 'paid', items: [{ name: 'Reward', sku: 'reward', quantity: 1, unitAmountMinor: '100' }] };
+  for (const outcome of ['timeout', 'invalid-json', 'http-error', [], [valid], ...[null, {}, { ...valid, items: undefined }, { ...valid, items: [null] }, { ...valid, items: [{ name: {} }] }, { ...valid, id: 12 }, { ...valid, currency: 'invalid' }, { ...valid, createdAt: 'invalid' }, { ...valid, paymentStatus: {} }].map(order => [order])]) {
+    const Page = load('app/account/page.tsx', pageMocks(async url => {
+      if (url === '/auth/me') return Response.json({ data: { id: 'player', username: 'player', status: 'active' } });
+      if (url !== '/account/orders') return Response.json({ data: [] });
+      if (outcome === 'timeout') throw Error('timeout');
+      if (outcome === 'invalid-json') return new Response('<html>');
+      if (outcome === 'http-error') return new Response(null, { status: 503 });
+      return Response.json({ data: outcome });
+    }, { cg_session: 'synthetic' })).default;
+    const html = renderToStaticMarkup(await Page({ searchParams: Promise.resolve({}) }));
+    assert.match(html, /@player/);
+    assert.match(html, /do not have any active items/);
+    assert.match(html, /Link Discord account/);
+    const available = Array.isArray(outcome) && (outcome.length === 0 || outcome[0] === valid);
+    assert.equal(html.includes('Purchase history is temporarily unavailable'), !available);
+    if (outcome[0] === valid) assert.match(html, /Reward × 1/);
+  }
+});
+
+test('Discord success requires a signed-in profile and verified account lookup', async () => {
+  for (const session of [false, true]) {
+    for (const state of ['missing', 'pending', 'verified', 'unavailable', 'expired']) {
+      const Page = load('app/account/page.tsx', pageMocks(async url => {
+        if (url === '/auth/me') return state === 'expired' ? new Response(null, { status: 401 }) : Response.json({ data: { username: 'player' } });
+        if (url === '/auth/linked-accounts') return state === 'unavailable' ? new Response(null, { status: 503 }) : Response.json({ data: state === 'missing' ? [] : [{ provider: 'discord', externalId: 'synthetic', verifiedAt: state === 'pending' ? null : '2026-01-01' }] });
+        return Response.json({ data: [] });
+      }, session ? { cg_session: 'synthetic' } : {})).default;
+      const html = renderToStaticMarkup(await Page({ searchParams: Promise.resolve({ discord: 'linked' }) }));
+      assert.equal(html.includes('Your Discord account was verified and linked successfully'), session && state === 'verified');
+    }
+  }
+});
+
+test('entitlement claims reject unsafe requests before session access and preserve valid forwarding', async () => {
+  let calls = 0;
+  let cookieReads = 0;
+  const { POST } = load('app/api/account/entitlements/[entitlementId]/claim/route.ts', {
+    'next/headers': { cookies: async () => { cookieReads++; return { get: () => ({ value: 'synthetic' }) }; } },
+    '@/lib/auth-request': authRequest,
+    '@/lib/core-api': { ...core, coreApiFetch: async (url, options, token) => {
+      calls++;
+      assert.equal(url, '/account/entitlements/12345678-1234-4234-8234-123456789abc/claim');
+      assert.equal(options.method, 'POST');
+      assert.equal(token, 'synthetic');
+      return Response.json({ data: { status: 'queued' } });
+    } },
+  });
+  const context = { params: Promise.resolve({ entitlementId: '12345678-1234-4234-8234-123456789abc' }) };
+  for (const [headers, expected] of [[{ origin: 'https://evil.site.test', 'content-type': 'application/json' }, 403], [{ 'sec-fetch-site': 'cross-site', 'content-type': 'application/json' }, 403], [{ 'content-type': 'application/x-www-form-urlencoded' }, 415]]) {
+    assert.equal((await POST(request(headers), context)).status, expected);
+  }
+  assert.equal(cookieReads, 0);
+  assert.equal(calls, 0);
+  assert.equal((await POST(request({ origin: 'https://site.test', 'content-type': 'application/json' }), context)).status, 200);
+  assert.equal(calls, 1);
+});
+
+test('store cancellation notice makes no payment claim from the URL', async () => {
+  const Page = load('app/store/page.tsx', {
+    ...pageMocks(async () => Response.json({ data: [] })),
+    '@/components/StorePurchaseButton': () => null,
+  }).default;
+  const html = renderToStaticMarkup(await Page({ searchParams: Promise.resolve({ checkout: 'cancelled' }) }));
+  assert.match(html, /Checkout was cancelled\./);
+  assert.doesNotMatch(html, /No payment was taken/);
+});
+
+test('claim button sends the JSON content type required by the request guard', async () => {
+  let sent;
+  let reloaded = false;
+  const Button = load('components/EntitlementClaimButton.tsx', {
+    react: { ...require('react'), useState: initial => [initial, () => {}] },
+  }, {
+    fetch: async (url, options) => { sent = { url, options }; return Response.json({ data: { status: 'queued' } }); },
+    window: { location: { reload: () => { reloaded = true; } } },
+  }).default;
+  await Button({ entitlementId: 'synthetic' }).props.children[0].props.onClick();
+  assert.equal(sent.url, '/api/account/entitlements/synthetic/claim');
+  assert.equal(sent.options.method, 'POST');
+  assert.equal(sent.options.headers['Content-Type'], 'application/json');
+  assert.equal(reloaded, true);
 });
