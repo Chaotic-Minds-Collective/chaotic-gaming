@@ -27,7 +27,11 @@ export default async function ModsPage() {
     const response = await coreApiFetch("/plugins");
     if (response.ok) {
       const payload = await parseCoreResponse(response) as { data?: Plugin[] };
-      plugins = payload.data ?? [];
+      if (Array.isArray(payload?.data)) {
+        plugins = payload.data;
+      } else {
+        unavailable = true;
+      }
     } else {
       unavailable = true;
     }

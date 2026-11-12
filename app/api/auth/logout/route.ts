@@ -1,20 +1,23 @@
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { coreApiFetch } from "@/lib/core-api";
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   const cookieStore = await cookies();
   const token = cookieStore.get("cg_session")?.value;
 
   if (token) {
     try {
-      await coreApiFetch("/auth/logout", { method: "POST" }, token);
+      const upstream = await coreApiFetch("/auth/logout", { method: "POST" }, token);
+      if (!upstream.ok) {
+        return NextResponse.json({ error: { code: "LOGOUT_FAILED", message: "Sign out could not be confirmed. Please try again." } }, { status: 503 });
+      }
     } catch {
       // Clear the browser session even if Core is temporarily unreachable.
     }
   }
 
-  const response = new NextResponse(null, { status: 204 });
+  const response = NextResponse.redirect(new URL("/account", request.url), 303);
   response.cookies.set("cg_session", "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

@@ -32,7 +32,11 @@ export default async function ServersPage() {
     const response = await coreApiFetch("/servers");
     if (response.ok) {
       const payload = await parseCoreResponse(response) as { data?: Server[] };
-      servers = payload.data ?? [];
+      if (Array.isArray(payload?.data)) {
+        servers = payload.data;
+      } else {
+        unavailable = true;
+      }
     } else {
       unavailable = true;
     }

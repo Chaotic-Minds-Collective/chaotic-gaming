@@ -62,7 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 Chaotic<span className="font-gothic text-2xl tracking-normal"> Gaming</span>
               </span>
             </Link>
-            <ul className="hidden items-center gap-6 md:flex">
+            <ul className="hidden items-center gap-6 lg:flex">
               {nav.map((n) => (
                 <li key={n.href}>
                   <Link href={n.href} className="font-mono2 text-[11px] uppercase tracking-[0.2em] text-[var(--muted)] transition hover:text-[var(--pulse)]">

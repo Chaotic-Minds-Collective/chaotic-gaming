@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
   const state = url.searchParams.get("state");
   const [storedState, storedSessionBinding] = stateCookie?.split(".") ?? [];
 
-  if (!state || !storedState || !storedSessionBinding || state.length !== storedState.length || storedSessionBinding.length !== 64) {
+  if (!state || !storedState || !storedSessionBinding || Buffer.byteLength(state) !== Buffer.byteLength(storedState) || Buffer.byteLength(storedSessionBinding) !== 64) {
     return redirectToAccount(request, "state-error");
   }
   if (!sessionToken) {
@@ -56,6 +56,7 @@ export async function GET(request: NextRequest) {
   const assertion = Object.fromEntries(
     [...url.searchParams.entries()].filter(([key]) => key.startsWith("openid."))
   );
+  if (assertion["openid.mode"] === "cancel") return redirectToAccount(request, "cancelled");
   const returnToValue = assertion["openid.return_to"];
   try {
     const expected = new URL(callbackUrl);

@@ -21,7 +21,11 @@ export default async function StorePage() {
     const response = await coreApiFetch("/catalog/products?currency=USD");
     if (response.ok) {
       const payload = await parseCoreResponse(response) as { data?: Product[] };
-      products = payload.data ?? [];
+      if (Array.isArray(payload?.data)) {
+        products = payload.data;
+      } else {
+        unavailable = true;
+      }
     } else {
       unavailable = true;
     }

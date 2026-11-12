@@ -31,6 +31,7 @@ export async function coreApiFetch(
     ...init,
     headers,
     cache: "no-store",
+    redirect: "error",
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });
 }
@@ -43,4 +44,10 @@ export async function parseCoreResponse(response: Response): Promise<unknown> {
   } catch {
     return { error: { code: "INVALID_CORE_RESPONSE", message: "The account service returned an invalid response." } };
   }
+}
+
+export function isInvalidCoreResponse(payload: unknown): boolean {
+  return typeof payload === "object" && payload !== null
+    && "error" in payload && typeof payload.error === "object" && payload.error !== null
+    && "code" in payload.error && payload.error.code === "INVALID_CORE_RESPONSE";
 }

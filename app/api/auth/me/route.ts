@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { coreApiFetch, parseCoreResponse } from "@/lib/core-api";
+import { coreApiFetch, parseCoreResponse, isInvalidCoreResponse } from "@/lib/core-api";
 
 export async function GET() {
   const cookieStore = await cookies();
@@ -10,7 +10,7 @@ export async function GET() {
   try {
     const upstream = await coreApiFetch("/auth/me", {}, token);
     const payload = await parseCoreResponse(upstream);
-    return NextResponse.json(payload, { status: upstream.status });
+    return NextResponse.json(payload, { status: isInvalidCoreResponse(payload) ? 502 : upstream.status });
   } catch {
     return NextResponse.json({ error: { code: "ACCOUNT_SERVICE_UNAVAILABLE", message: "Account information is temporarily unavailable." } }, { status: 503 });
   }

@@ -1,3 +1,4 @@
+import { validateAuthRequest } from "@/lib/auth-request";
 import { NextRequest, NextResponse } from "next/server";
 import { coreApiFetch, parseCoreResponse } from "@/lib/core-api";
 
@@ -5,6 +6,9 @@ const COOKIE_NAME = "cg_session";
 const SESSION_MAX_AGE = 7 * 24 * 60 * 60;
 
 export async function POST(request: NextRequest) {
+  const invalidRequest = validateAuthRequest(request);
+  if (invalidRequest) return invalidRequest;
+
   let body: unknown;
   try {
     body = await request.json();
