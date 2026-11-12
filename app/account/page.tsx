@@ -30,8 +30,9 @@ type LinkedAccount = {
 
 export const dynamic = "force-dynamic";
 
-export default async function AccountPage({ searchParams }: { searchParams: Promise<{ steam?: string }> }) {
-  const { steam: steamResult } = await searchParams;
+export default async function AccountPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const params = await searchParams;
+  const steamResult = typeof params.steam === "string" ? params.steam : undefined;
   const token = (await cookies()).get("cg_session")?.value;
   let player: Player | null = null;
   let entitlements: Entitlement[] = [];
