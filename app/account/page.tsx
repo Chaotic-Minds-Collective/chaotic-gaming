@@ -18,6 +18,7 @@ type Entitlement = {
   sku: string;
   name: string;
   productType: string;
+  quantity: number;
 };
 
 type LinkedAccount = {
@@ -130,7 +131,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
                 {entitlements.map((item) => (
                   <article key={item.id} className="rounded-lg border border-white/10 bg-white/5 p-4">
                     <h3 className="font-semibold">{item.name}</h3>
-                    <p className="mt-1 text-xs text-white/55">{item.productType.replaceAll("_", " ")} · {item.status}</p>
+                    <p className="mt-1 text-xs text-white/55">{item.productType.replaceAll("_", " ")} · Qty {item.quantity} · {item.status}</p>
                   </article>
                 ))}
               </div>
