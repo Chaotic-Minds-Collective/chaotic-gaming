@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
     const response = await coreApiFetch("/auth/linked-accounts/steam", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(assertion),
+      body: JSON.stringify({ state, assertion }),
     }, sessionToken);
     return redirectToAccount(request, response.ok ? "linked" : "failed");
   } catch {
