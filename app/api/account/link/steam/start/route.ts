@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
   }
 
   const requestOrigin = new URL(request.url).origin;
-  if (callbackUrl.protocol !== "https:" || callbackUrl.origin !== requestOrigin || callbackUrl.search) {
+  if (callbackUrl.protocol !== "https:" || callbackUrl.origin !== requestOrigin || callbackUrl.search || callbackUrl.hash) {
     return NextResponse.redirect(new URL("/account?steam=misconfigured", request.url));
   }
 
