@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { coreApiFetch, parseCoreResponse } from "@/lib/core-api";
+import EntitlementClaimButton from "@/components/EntitlementClaimButton";
 
 type Player = {
   id: string;
@@ -19,6 +20,12 @@ type Entitlement = {
   name: string;
   productType: string;
   quantity: number;
+  deliveryTargets?: Array<{
+    gameKey: string;
+    serverId: string;
+    serverName: string;
+    rewardStatus: string | null;
+  }>;
 };
 
 type PurchaseOrder = {
@@ -184,6 +191,29 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
                   <article key={item.id} className="rounded-lg border border-white/10 bg-white/5 p-4">
                     <h3 className="font-semibold">{item.name}</h3>
                     <p className="mt-1 text-xs text-white/55">{item.productType.replaceAll("_", " ")} · Qty {item.quantity} · {item.status}</p>
+                    {(item.deliveryTargets ?? []).length > 0 ? (
+                      <div className="mt-3 border-t border-white/10 pt-3">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-cyan-300">In-game delivery</p>
+                        <ul className="mt-2 space-y-1 text-xs text-white/60">
+                          {(item.deliveryTargets ?? []).map((target) => (
+                            <li key={target.gameKey}>
+                              {target.gameKey.toUpperCase()} · {target.serverName} · {target.rewardStatus ?? "Not queued"}
+                            </li>
+                          ))}
+                        </ul>
+                        {(item.deliveryTargets ?? []).some((target) => target.rewardStatus === null) && (
+                          steamAccount?.verifiedAt ? (
+                            <EntitlementClaimButton entitlementId={item.id} />
+                          ) : (
+                            <Link className="mt-3 inline-block text-xs text-cyan-300 underline" href="/api/account/link/steam/start">
+                              Link and verify Steam to claim
+                            </Link>
+                          )
+                        )}
+                      </div>
+                    ) : (
+                      <p className="mt-3 text-xs text-white/40">No in-game delivery target is configured for this item yet.</p>
+                    )}
                   </article>
                 ))}
               </div>
