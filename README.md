@@ -10,43 +10,41 @@ Chaotic Gaming is a division of Chaotic Minds Collective. The website is live at
 - Tailwind CSS 3
 - Vercel deployment from the `main` branch
 - Static game catalog data in `lib/games.ts`; shared site constants in `lib/site.ts`
-- No database or server-side application state is currently used
+- Optional read-only server status from Chaotic Gaming Core (`CORE_API_URL`)
+
+## Core server status
+
+Set `CORE_API_URL` to the public base URL of the Chaotic Gaming Core API to show live server registry information on ATLAS, 7 Days to Die and ARK game pages. The website calls the public `GET /servers` endpoint with a 60-second revalidation window. If Core is not configured or unavailable, the existing static status copy remains in use.
+
+No Core credentials are required for this public read-only endpoint. Do not add service tokens or database credentials to website environment variables.
 
 ## Site structure
 
 | Route | Purpose |
 | --- | --- |
 | `/` | Founding-member pitch and game community catalog |
-| `/about` | Chaotic Gaming's relationship to Chaotic Minds Collective |
+| `/about` | Chaotic Minds Collective relationship |
 | `/games` | Game catalog |
-| `/games/[game]` | Static details page for each catalog game |
+| `/games/[game]` | Game details and optional Core server status |
 | `/discord` | Discord invite, widget, onboarding walkthrough, and short rules |
 | `/events` | Events announcement and future calendar placeholder |
 | `/support` | Future supporter options; nothing is currently for sale |
-
-## Key files
-
-- `lib/site.ts` - shared invite and public asset paths
-- `lib/games.ts` - game catalog, statuses, and server-planning copy
-- `app/games/[game]/page.tsx` - generated game details pages
-- `public/sitemap.xml` and `public/robots.txt` - search crawler files
-- `app/layout.tsx` - shared navigation, metadata, and footer
-- `next.config.mjs` - security headers and favicon redirect
 
 ## Local development
 
 1. Install Node.js 20.9.0 or newer (production runtime is configured in Vercel; verify compatibility before changing the version).
 2. Run `npm install`.
-3. Run `npm run dev` for local development.
-4. Run `npm run build` for a production build check.
+3. Copy `.env.example` to `.env` and optionally set `CORE_API_URL`.
+4. Run `npm run dev` for local development.
+5. Run `npm run build` for a production build check.
 
 ## Deployment
 
-Vercel deploys the site from `main`. The website does not currently require environment variables or a database. Do not add secrets to the repository.
+Vercel deploys the site from the `main` branch. The website does not require a database. Do not add secrets to the repository. The Core API integration is read-only and optional.
 
 ## Community servers
 
-Game-server launches are community-voted. Members decide which games launch first, as well as rates and rules, in Discord. The website currently lists these game hubs: 7 Days to Die, ARK: Survival Evolved, ATLAS, Soulmask, Space Engineers, Palworld, Icarus, Valheim, Minecraft, and Conan Exiles. Listing a game does not mean its dedicated server is online; its status is shown on the site.
+Game-server launches are community-voted. Members decide which games launch first, as well as rates and rules, in Discord. The website lists game hubs; listing a game does not mean its dedicated server is online. Core server status is shown only when a matching public server record is available.
 
 ## Discord
 
