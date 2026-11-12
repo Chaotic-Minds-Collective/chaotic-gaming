@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
 
   if (!stateCookie || stateCookie.length > 2048 || !state || !code || code.length > 2048
     || !/^[A-Za-z0-9_-]{43}$/.test(state)
-    || (issuer && issuer !== "https://discord.com")) {
+    || issuer !== "https://discord.com") {
     return redirectToAccount(request, "state-error");
   }
 

@@ -253,3 +253,39 @@ test('claim button sends the JSON content type required by the request guard', a
   assert.equal(sent.options.headers['Content-Type'], 'application/json');
   assert.equal(reloaded, true);
 });
+
+
+test('Discord callback requires the exact issuer before forwarding a valid session-bound code', async () => {
+  const state = 's'.repeat(43);
+  const session = 'synthetic-session';
+  const bindingValue = 'b'.repeat(43);
+  const stateCookie = Buffer.from(JSON.stringify({
+    state, cookieName: 'discord-link', bindingValue,
+    sessionBinding: createHash('sha256').update(session).digest('hex'),
+  })).toString('base64url');
+  for (const issuer of [null, '', 'https://attacker.test', 'https://discord.com/', 'https://discord.com']) {
+    const calls = [];
+    const { GET } = load('app/api/account/link/discord/callback/route.ts', {
+      'next/headers': cookieMock({ cg_session: session, cg_discord_link_state: stateCookie }),
+    }, {
+      process: { env: { CORE_API_BASE_URL: 'https://core.test' } },
+      fetch: async (url, options) => { calls.push({ url, options }); return new Response(null, { status: 200 }); },
+    });
+    const url = new URL('https://site.test/api/account/link/discord/callback');
+    url.searchParams.set('state', state);
+    url.searchParams.set('code', 'synthetic-code');
+    if (issuer !== null) url.searchParams.set('iss', issuer);
+    const response = await GET(new NextRequest(url));
+    const valid = issuer === 'https://discord.com';
+    assert.equal(response.headers.get('location'), `https://site.test/account?discord=${valid ? 'linked' : 'state-error'}`);
+    assert.equal(response.headers.get('cache-control'), 'no-store');
+    assert.equal(response.cookies.get('cg_discord_link_state').maxAge, 0);
+    assert.equal(calls.length, valid ? 1 : 0);
+    if (valid) {
+      assert.equal(calls[0].url.origin, 'https://core.test');
+      assert.equal(calls[0].url.searchParams.get('code'), 'synthetic-code');
+      assert.equal(calls[0].url.searchParams.get('state'), state);
+      assert.equal(calls[0].options.headers.Cookie, `discord-link=${bindingValue}`);
+    }
+  }
+});
