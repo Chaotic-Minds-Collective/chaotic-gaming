@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { coreApiFetch } from "@/lib/core-api";
 
+export const runtime = "nodejs";
+
 const SESSION_COOKIE = "cg_session";
 const STATE_COOKIE = "cg_steam_link_state";
 
