@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
   const state = url.searchParams.get("state");
   const [storedState, storedSessionBinding] = stateCookie?.split(".") ?? [];
 
-  if (!state || !storedState || !storedSessionBinding || state.length !== storedState.length) {
+  if (!state || !storedState || !storedSessionBinding || state.length !== storedState.length || storedSessionBinding.length !== 64) {
     return redirectToAccount(request, "state-error");
   }
   if (!sessionToken) {
