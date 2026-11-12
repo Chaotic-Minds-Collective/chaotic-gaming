@@ -1,4 +1,4 @@
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -7,7 +7,8 @@ const STATE_COOKIE = "cg_steam_link_state";
 
 export async function GET(request: NextRequest) {
   const cookieStore = await cookies();
-  if (!cookieStore.get(SESSION_COOKIE)?.value) {
+  const sessionToken = cookieStore.get(SESSION_COOKIE)?.value;
+  if (!sessionToken) {
     return NextResponse.redirect(new URL("/account/login?next=%2Faccount", request.url));
   }
 
@@ -43,7 +44,8 @@ export async function GET(request: NextRequest) {
   }).toString();
 
   const response = NextResponse.redirect(steamUrl);
-  response.cookies.set(STATE_COOKIE, state, {
+  const sessionBinding = createHash("sha256").update(sessionToken).digest("hex");
+  response.cookies.set(STATE_COOKIE, state + "." + sessionBinding, {
     httpOnly: true,
     secure: true,
     sameSite: "lax",
