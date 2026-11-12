@@ -1,6 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { coreApiFetch } from "@/lib/core-api";
 
 const SESSION_COOKIE = "cg_session";
 const STATE_COOKIE = "cg_steam_link_state";
@@ -30,6 +31,19 @@ export async function GET(request: NextRequest) {
   }
 
   const state = randomBytes(32).toString("base64url");
+  try {
+    const challengeResponse = await coreApiFetch("/auth/steam-link/challenge", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ state }),
+    }, sessionToken);
+    if (!challengeResponse.ok) {
+      return NextResponse.redirect(new URL("/account?steam=unavailable", request.url));
+    }
+  } catch {
+    return NextResponse.redirect(new URL("/account?steam=unavailable", request.url));
+  }
+
   const returnTo = new URL(callbackUrl);
   returnTo.searchParams.set("state", state);
 
