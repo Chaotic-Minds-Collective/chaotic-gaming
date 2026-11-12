@@ -99,7 +99,7 @@ export default async function AccountPage() {
               </div>
             ) : (
               <div className="mt-4">
-                <Link className="inline-flex rounded-lg bg-cyan-400 px-4 py-2 font-semibold text-slate-950" href="/api/account/link/steam/start">Link Steam account</Link>
+                <a className="inline-flex rounded-lg bg-cyan-400 px-4 py-2 font-semibold text-slate-950" href="/api/account/link/steam/start">Link Steam account</a>
                 <p className="mt-2 text-xs text-white/45">You'll verify ownership on Steam before the account is linked.</p>
               </div>
             )}
