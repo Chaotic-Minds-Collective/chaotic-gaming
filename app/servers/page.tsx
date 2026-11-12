@@ -76,7 +76,9 @@ export default async function ServersPage() {
                 <p className="mt-1 break-all font-mono text-sm text-cyan-200">{server.publicHostname}:{server.gamePort}</p>
               </div>
               <p className="mt-3 text-sm text-white/75">
-                {server.playerCount ?? 0}{server.maxPlayers ? ` / ${server.maxPlayers}` : ""} players
+                {server.playerCount === null
+                  ? "Player count unavailable"
+                  : `${server.playerCount}${server.maxPlayers ? ` / ${server.maxPlayers}` : ""} players`}
               </p>
               {server.queryPort && <p className="mt-1 text-xs text-white/45">Query port: {server.queryPort}</p>}
               <p className="mt-4 text-xs text-white/40">
