@@ -1,41 +1,15 @@
-import Link from "next/link";
-import { cookies } from "next/headers";
-import { coreApiFetch, parseCoreResponse } from "@/lib/core-api";
-import EntitlementClaimButton from "@/components/EntitlementClaimButton";
+"use client";
 
-type Player = {
+import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+
+type Account = {
   id: string;
   username: string;
+  email: string | null;
   displayName: string | null;
   status: string;
   createdAt: string;
-};
-
-type Entitlement = {
-  id: string;
-  status: string;
-  grantedAt: string;
-  expiresAt: string | null;
-  sku: string;
-  name: string;
-  productType: string;
-  quantity: number;
-  deliveryTargets?: Array<{
-    gameKey: string;
-    serverId: string;
-    serverName: string;
-    rewardStatus: string | null;
-  }>;
-};
-
-type PurchaseOrder = {
-  id: string;
-  status: string;
-  currency: string;
-  totalMinor: string;
-  createdAt: string;
-  paymentStatus: string | null;
-  items: Array<{ name: string; sku: string; quantity: number; unitAmountMinor: string }>;
 };
 
 type LinkedAccount = {
@@ -46,208 +20,124 @@ type LinkedAccount = {
   linkedAt: string;
 };
 
-export const dynamic = "force-dynamic";
+export default function AccountPage() {
+  const [account, setAccount] = useState<Account | null>(null);
+  const [linked, setLinked] = useState<LinkedAccount[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
 
-export default async function AccountPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  const params = await searchParams;
-  const steamResult = typeof params.steam === "string" ? params.steam : undefined;
-  const token = (await cookies()).get("cg_session")?.value;
-  let player: Player | null = null;
-  let entitlements: Entitlement[] = [];
-  let linkedAccounts: LinkedAccount[] = [];
-  let orders: PurchaseOrder[] = [];
-  let ordersUnavailable = false;
-  let accountUnavailable = false;
-  let profileUnauthenticated = false;
-  let linkedAccountsUnavailable = false;
-
-  if (token) {
+  const loadAccount = useCallback(async () => {
+    setLoading(true);
+    setError("");
     try {
-      const [profileResponse, entitlementResponse, linkedResponse, ordersResponse] = await Promise.all([
-        coreApiFetch("/auth/me", {}, token),
-        coreApiFetch("/account/entitlements", {}, token),
-        coreApiFetch("/auth/linked-accounts", {}, token),
-        coreApiFetch("/account/orders", {}, token),
+      const [accountResponse, linkedResponse] = await Promise.all([
+        fetch("/api/auth/me", { cache: "no-store" }),
+        fetch("/api/auth/linked-accounts", { cache: "no-store" }),
       ]);
-      if (profileResponse.ok) {
-        const payload = await parseCoreResponse(profileResponse) as { data?: Player };
-        player = payload?.data ?? null;
-        if (!player) accountUnavailable = true;
-      } else if (profileResponse.status === 401) {
-        profileUnauthenticated = true;
-      } else {
-        accountUnavailable = true;
+      if (accountResponse.status === 401 || linkedResponse.status === 401) {
+        window.location.replace("/account/login");
+        return;
       }
-      if (entitlementResponse.ok) {
-        const payload = await parseCoreResponse(entitlementResponse) as { data?: Entitlement[] };
-        if (Array.isArray(payload?.data)) entitlements = payload.data;
-        else accountUnavailable = true;
-      } else {
-        accountUnavailable = true;
+      const accountPayload = await accountResponse.json();
+      const linkedPayload = await linkedResponse.json();
+      if (!accountResponse.ok) throw new Error(accountPayload?.error?.message || "Unable to load your account.");
+      if (!linkedResponse.ok) throw new Error(linkedPayload?.error?.message || "Unable to load linked accounts.");
+      setAccount(accountPayload.data);
+      setLinked(Array.isArray(linkedPayload.data) ? linkedPayload.data : []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Account services are temporarily unavailable.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void loadAccount(); }, [loadAccount]);
+
+  async function linkDiscord() {
+    setBusy(true);
+    setError("");
+    try {
+      const response = await fetch("/api/auth/discord/challenge", { method: "POST" });
+      const payload = await response.json();
+      if (!response.ok || typeof payload?.data?.authorizationUrl !== "string") {
+        throw new Error(payload?.error?.message || "Discord linking is not available yet.");
       }
-      if (linkedResponse.ok) {
-        const payload = await parseCoreResponse(linkedResponse) as { data?: LinkedAccount[] };
-        if (Array.isArray(payload?.data)) linkedAccounts = payload.data;
-        else linkedAccountsUnavailable = true;
-      } else {
-        linkedAccountsUnavailable = true;
-      }
-      if (ordersResponse.ok) {
-        const payload = await parseCoreResponse(ordersResponse) as { data?: PurchaseOrder[] };
-        if (Array.isArray(payload?.data)) orders = payload.data;
-        else ordersUnavailable = true;
-      } else {
-        ordersUnavailable = true;
-      }
-    } catch {
-      accountUnavailable = true;
-      linkedAccountsUnavailable = true;
+      window.location.assign(payload.data.authorizationUrl);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Discord linking could not be started.");
+      setBusy(false);
     }
   }
 
-  const steamAccount = linkedAccounts.find((account) => account.provider === "steam");
+  async function signOut() {
+    setBusy(true);
+    await fetch("/api/auth/logout", { method: "POST" }).catch(() => undefined);
+    window.location.replace("/account/login");
+  }
+
+  const discord = linked.find((item) => item.provider === "discord");
+
+  if (loading) {
+    return <section className="px-6 py-20"><div className="mx-auto max-w-3xl card"><p className="kicker">Player account</p><p className="mt-5 text-[var(--muted)]">Loading your account…</p></div></section>;
+  }
+
+  if (!account) {
+    return <section className="px-6 py-20"><div className="mx-auto max-w-3xl card"><p className="kicker">Player account</p><h1 className="section-title mt-3">Account unavailable</h1><p className="mt-4 text-[var(--muted)]">{error || "Sign in to view your player account."}</p><Link href="/account/login" className="btn-cta mt-8">Sign in</Link></div></section>;
+  }
 
   return (
-    <main className="mx-auto min-h-[60vh] max-w-4xl px-6 py-16">
-      <p className="text-sm uppercase tracking-[0.25em] text-cyan-400">Chaotic Gaming</p>
-      <h1 className="mt-3 text-4xl font-bold">Player account</h1>
-      {params.logout === "unconfirmed" && <p role="status" className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">You signed out of this browser, but the account service could not confirm session revocation. Your session may still be active elsewhere.</p>}
-      {steamResult === "linked" && <p className="mt-4 rounded-lg border border-cyan-400/30 bg-cyan-400/10 p-4 text-sm text-cyan-200">Your Steam account was verified and linked successfully.</p>}
-      {steamResult === "state-error" && <p className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">The Steam verification session expired or did not match. Please try again.</p>}
-      {steamResult === "cancelled" && <p className="mt-4 text-sm text-white/70">Steam linking was cancelled. You can try again.</p>}
-      {steamResult === "failed" && <p className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">The link request expired, the Steam account may already be linked elsewhere, or verification failed. No account was changed.</p>}
-      {steamResult === "unavailable" && <p className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">Steam linking is temporarily unavailable. Try again later.</p>}
-      {steamResult === "misconfigured" && <p className="mt-4 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">Steam linking is not configured for this website yet.</p>}
-      {player ? (
-        <>
-          <section className="mt-8 rounded-xl border border-white/10 bg-white/5 p-6">
-            <h2 className="text-2xl font-semibold">{player.displayName || player.username}</h2>
-            <p className="mt-2 text-sm text-white/60">@{player.username}</p>
-            <p className="mt-2 break-all font-mono text-xs text-white/40">Account ID: {player.id}</p>
-            <p className="mt-4 text-sm text-white/70">Account status: {player.status}</p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link className="rounded-lg border border-cyan-400 px-4 py-2 font-semibold text-cyan-300" href="/store">Player store</Link>
-            </div>
-          </section>
-
-          <section className="mt-8 rounded-xl border border-white/10 bg-white/5 p-6">
-            <h2 className="text-xl font-semibold">Linked game accounts</h2>
-            <p className="mt-2 text-sm text-white/60">Link verified game identities to connect your website, Discord and game characters.</p>
-            {linkedAccountsUnavailable ? (
-              <p className="mt-4 text-sm text-white/60">Linked account information is temporarily unavailable.</p>
-            ) : steamAccount ? (
-              <div className="mt-4 rounded-lg border border-white/10 p-4">
-                <p className="font-semibold">Steam <span className="ml-2 text-xs text-cyan-300">{steamAccount.verifiedAt !== null ? "VERIFIED" : "PENDING"}</span></p>
-                <p className="mt-1 break-all font-mono text-sm text-white/65">{steamAccount.externalId}</p>
-              </div>
-            ) : (
-              <div className="mt-4">
-                <a className="inline-flex rounded-lg bg-cyan-400 px-4 py-2 font-semibold text-slate-950" href="/api/account/link/steam/start">Link Steam account</a>
-                <p className="mt-2 text-xs text-white/45">You'll verify ownership on Steam before the account is linked.</p>
-              </div>
-            )}
-          </section>
-
-          <section className="mt-8">
-            <h2 className="text-2xl font-semibold">Purchase history</h2>
-            {ordersUnavailable ? (
-              <p className="mt-3 text-sm text-white/60">Purchase history is temporarily unavailable.</p>
-            ) : orders.length === 0 ? (
-              <p className="mt-3 text-sm text-white/60">You do not have any orders yet.</p>
-            ) : (
-              <div className="mt-4 space-y-3">
-                {orders.map((order) => (
-                  <article key={order.id} className="rounded-lg border border-white/10 bg-white/5 p-4">
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div>
-                        <p className="font-semibold">Order #{order.id.slice(0, 8)}</p>
-                        <p className="mt-1 text-xs text-white/55">{new Date(order.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold">{(Number(order.totalMinor) / 100).toLocaleString("en-US", { style: "currency", currency: order.currency })}</p>
-                        <p className="mt-1 text-xs uppercase tracking-wide text-cyan-300">{order.status.replaceAll("_", " ")}</p>
-                      </div>
-                    </div>
-                    <ul className="mt-3 space-y-1 text-sm text-white/65">
-                      {order.items.map((item, index) => (
-                        <li key={order.id + "-" + index}>{item.name} × {item.quantity}</li>
-                      ))}
-                    </ul>
-                    {order.paymentStatus && <p className="mt-3 text-xs text-white/45">Payment: {order.paymentStatus.replaceAll("_", " ")}</p>}
-                  </article>
-                ))}
-              </div>
-            )}
-          </section>
-
-          <section className="mt-8">
-            <h2 className="text-2xl font-semibold">My items and entitlements</h2>
-            {accountUnavailable ? (
-              <p className="mt-3 text-sm text-white/60">Your entitlements are temporarily unavailable.</p>
-            ) : entitlements.length === 0 ? (
-              <p className="mt-3 text-sm text-white/60">You do not have any active items yet.</p>
-            ) : (
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {entitlements.map((item) => (
-                  <article key={item.id} className="rounded-lg border border-white/10 bg-white/5 p-4">
-                    <h3 className="font-semibold">{item.name}</h3>
-                    <p className="mt-1 text-xs text-white/55">{item.productType.replaceAll("_", " ")} · Qty {item.quantity} · {item.status}</p>
-                    {(item.deliveryTargets ?? []).length > 0 ? (
-                      <div className="mt-3 border-t border-white/10 pt-3">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-cyan-300">In-game delivery</p>
-                        <ul className="mt-2 space-y-1 text-xs text-white/60">
-                          {(item.deliveryTargets ?? []).map((target) => (
-                            <li key={target.gameKey}>
-                              {target.gameKey.toUpperCase()} · {target.serverName} · {target.rewardStatus ?? "Not queued"}
-                            </li>
-                          ))}
-                        </ul>
-                        {(item.deliveryTargets ?? []).some((target) => target.rewardStatus === null) && (
-                          steamAccount?.verifiedAt ? (
-                            <EntitlementClaimButton entitlementId={item.id} />
-                          ) : (
-                            <Link className="mt-3 inline-block text-xs text-cyan-300 underline" href="/api/account/link/steam/start">
-                              Link and verify Steam to claim
-                            </Link>
-                          )
-                        )}
-                      </div>
-                    ) : (
-                      <p className="mt-3 text-xs text-white/40">No in-game delivery target is configured for this item yet.</p>
-                    )}
-                  </article>
-                ))}
-              </div>
-            )}
-          </section>
-        </>
-      ) : profileUnauthenticated ? (
-        <section className="mt-8 rounded-xl border border-white/10 bg-white/5 p-6">
-          <p className="text-white/70">Your session has expired. Sign in again to access player features.</p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link className="rounded-lg bg-cyan-400 px-5 py-3 font-semibold text-slate-950" href="/account/login">Sign in</Link>
-            <Link className="rounded-lg border border-white/20 px-5 py-3 font-semibold" href="/account/register">Create account</Link>
+    <section className="relative overflow-hidden px-6 py-16 md:px-10">
+      <div className="aurora" />
+      <div className="relative mx-auto max-w-4xl">
+        <p className="kicker">Chaotic Gaming identity</p>
+        <div className="mt-3 flex flex-wrap items-end justify-between gap-5">
+          <div>
+            <h1 className="section-title">Player account</h1>
+            <p className="mt-3 text-[var(--muted)]">One account connecting your community and game identities.</p>
           </div>
-        </section>
-      ) : accountUnavailable ? (
-        <section className="mt-8 rounded-xl border border-white/10 bg-white/5 p-6">
-          <p className="text-white/70">Account information is temporarily unavailable.</p>
-          <a className="mt-4 inline-block text-cyan-300 underline" href="/account">Retry</a>
-        </section>
-      ) : (
-        <section className="mt-8 rounded-xl border border-white/10 bg-white/5 p-6">
-          <p className="text-white/70">Sign in or create an account to access player features.</p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link className="rounded-lg bg-cyan-400 px-5 py-3 font-semibold text-slate-950" href="/account/login">Sign in</Link>
-            <Link className="rounded-lg border border-white/20 px-5 py-3 font-semibold" href="/account/register">Create account</Link>
+          <button type="button" onClick={signOut} disabled={busy} className="btn-ghost disabled:opacity-50">Sign out</button>
+        </div>
+        {error && <p role="alert" className="mt-6 border border-red-400/40 bg-red-950/30 p-4 text-sm text-red-200">{error}</p>}
+
+        <div className="mt-10 grid gap-6 md:grid-cols-2">
+          <div className="card">
+            <p className="kicker">Your profile</p>
+            <h2 className="mt-4 text-2xl font-bold">{account.displayName || account.username}</h2>
+            <dl className="mt-6 space-y-3 text-sm">
+              <div><dt className="text-[var(--muted)]">Username</dt><dd className="mt-1">{account.username}</dd></div>
+              <div><dt className="text-[var(--muted)]">Email</dt><dd className="mt-1">{account.email || "Not added"}</dd></div>
+              <div><dt className="text-[var(--muted)]">Account status</dt><dd className="mt-1 capitalize">{account.status}</dd></div>
+              <div><dt className="text-[var(--muted)]">Player ID</dt><dd className="mt-1 break-all font-mono2 text-xs">{account.id}</dd></div>
+            </dl>
           </div>
-        </section>
-      )}
-      {token && (
-        <form className="mt-6" action="/api/auth/logout" method="post">
-          <button className="rounded-lg border border-white/20 px-4 py-2 font-semibold" type="submit">Sign out</button>
-        </form>
-      )}
-    </main>
+
+          <div className="card">
+            <p className="kicker">Connected identities</p>
+            <h2 className="mt-4 text-2xl font-bold">Linked accounts</h2>
+            {linked.length === 0 ? (
+              <p className="mt-5 text-sm text-[var(--muted)]">No external accounts are linked yet.</p>
+            ) : (
+              <ul className="mt-5 space-y-3">
+                {linked.map((item) => (
+                  <li key={item.provider} className="border border-[var(--line)] bg-black/20 p-3">
+                    <p className="font-semibold capitalize">{item.provider}</p>
+                    <p className="mt-1 text-sm text-[var(--muted)]">{item.externalUsername || item.externalId}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {discord ? (
+              <p className="mt-6 text-sm text-[var(--pulse)]">Discord is connected to this player account.</p>
+            ) : (
+              <button type="button" onClick={linkDiscord} disabled={busy} className="btn-cta mt-6 w-full disabled:cursor-not-allowed disabled:opacity-50">
+                {busy ? "Connecting…" : "Link Discord"}
+              </button>
+            )}
+            <p className="mt-4 text-xs leading-6 text-[var(--muted)]">Linking verifies ownership through Discord OAuth2. Your Discord password is never shared with Chaotic Gaming.</p>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
