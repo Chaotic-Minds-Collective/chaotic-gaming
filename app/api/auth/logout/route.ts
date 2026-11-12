@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   if (token) {
     try {
       const upstream = await coreApiFetch("/auth/logout", { method: "POST" }, token);
-      if (!upstream.ok) {
+      if (!upstream.ok && upstream.status !== 401) {
         return NextResponse.json({ error: { code: "LOGOUT_FAILED", message: "Sign out could not be confirmed. Please try again." } }, { status: 503 });
       }
     } catch {

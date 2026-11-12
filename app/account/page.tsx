@@ -38,6 +38,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
   let entitlements: Entitlement[] = [];
   let linkedAccounts: LinkedAccount[] = [];
   let accountUnavailable = false;
+  let profileUnauthenticated = false;
   let linkedAccountsUnavailable = false;
 
   if (token) {
@@ -51,7 +52,9 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
         const payload = await parseCoreResponse(profileResponse) as { data?: Player };
         player = payload?.data ?? null;
         if (!player) accountUnavailable = true;
-      } else if (profileResponse.status !== 401) {
+      } else if (profileResponse.status === 401) {
+        profileUnauthenticated = true;
+      } else {
         accountUnavailable = true;
       }
       if (entitlementResponse.ok) {
@@ -133,6 +136,14 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
             )}
           </section>
         </>
+      ) : profileUnauthenticated ? (
+        <section className="mt-8 rounded-xl border border-white/10 bg-white/5 p-6">
+          <p className="text-white/70">Your session has expired. Sign in again to access player features.</p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link className="rounded-lg bg-cyan-400 px-5 py-3 font-semibold text-slate-950" href="/account/login">Sign in</Link>
+            <Link className="rounded-lg border border-white/20 px-5 py-3 font-semibold" href="/account/register">Create account</Link>
+          </div>
+        </section>
       ) : accountUnavailable ? (
         <section className="mt-8 rounded-xl border border-white/10 bg-white/5 p-6">
           <p className="text-white/70">Account information is temporarily unavailable.</p>

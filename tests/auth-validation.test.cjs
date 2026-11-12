@@ -88,7 +88,7 @@ test('logout retains cookie on Core errors, redirects on success, and preserves 
       '@/lib/core-api': { coreApiFetch: async () => { if (outcome === 'unreachable') throw Error('timeout'); return new Response(null, { status: outcome }); } },
     });
     const result = await POST(request());
-    if ([400, 401, 500].includes(outcome)) {
+    if ([400, 500].includes(outcome)) {
       assert.equal(result.status, 503);
       assert.equal(result.cookies.get('cg_session'), undefined);
     } else {
@@ -122,6 +122,11 @@ test('account outages retain sign out and retry; malformed arrays are unavailabl
   assert.match(outage, /Retry/);
   assert.match(outage, /Sign out/);
   assert.doesNotMatch(outage, /Sign in or create/);
+  const unauthenticated = await render(async (url) => url === '/auth/me' ? new Response(null, { status: 401 }) : new Response(null, { status: 503 }));
+  assert.match(unauthenticated, /Your session has expired/);
+  assert.match(unauthenticated, /Sign in/);
+  assert.match(unauthenticated, /Create account/);
+  assert.match(unauthenticated, /Sign out/);
   const profile = { data: { username: 'player', status: 'active' } };
   const malformed = await render(async (url) => Response.json(url === '/auth/me' ? profile : { data: {} }));
   assert.match(malformed, /entitlements are temporarily unavailable/);
