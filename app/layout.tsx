@@ -64,8 +64,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Link href="/" className="flex items-center gap-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={BADGE} alt="Chaotic Minds Gaming crest" className="h-11 w-11 rounded-full shadow-[0_0_18px_rgba(0,229,255,0.45)]" />
-              <span className="font-display text-base font-extrabold uppercase tracking-[0.18em] grad-text">
-                Chaotic<span className="font-gothic text-2xl tracking-normal"> Gaming</span>
+              <span className="font-display text-[10px] font-extrabold uppercase tracking-normal grad-text sm:text-base sm:tracking-[0.18em]">
+                Chaotic Minds<span className="font-gothic text-base tracking-normal sm:text-2xl"> Gaming</span>
               </span>
             </Link>
             <ul className="hidden items-center gap-6 lg:flex">
