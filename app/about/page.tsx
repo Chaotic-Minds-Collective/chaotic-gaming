@@ -7,13 +7,13 @@ export default function About() {
       <div className="relative mx-auto max-w-3xl text-center">
         <div className="reveal crest-ring mx-auto h-44 w-44">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={BADGE} alt="Chaotic Gaming crest" className="h-full w-full rounded-full" />
+          <img src={BADGE} alt="Chaotic Minds Gaming crest" className="h-full w-full rounded-full" />
         </div>
         <p className="kicker reveal d1 mt-10">Who we are</p>
-        <h1 className="section-title reveal d1 mt-3">About Chaotic Gaming</h1>
+        <h1 className="section-title reveal d1 mt-3">About Chaotic Minds Gaming</h1>
         <div className="section-rule reveal d1 mx-auto" />
         <p className="reveal d2 mt-8 text-[var(--text)]">
-          Chaotic Gaming is the gaming division of Chaotic Minds Collective, built on one philosophy:
+          Chaotic Minds Gaming is the gaming division of Chaotic Minds Collective, built on one philosophy:
         </p>
         <p className="reveal d2 font-gothic mt-5 text-4xl grad-text">Community built by gamers, for gamers.</p>
         <p className="reveal d3 mt-8 text-[var(--muted)]">
