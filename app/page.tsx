@@ -17,7 +17,7 @@ export default function Home() {
         <div className="relative mx-auto max-w-4xl">
           <div className="reveal crest-ring mx-auto mb-10 h-28 w-28">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={BADGE} alt="Chaotic Gaming crest" className="h-full w-full rounded-full" />
+            <img src={BADGE} alt="Chaotic Minds Gaming crest" className="h-full w-full rounded-full" />
           </div>
           <p className="kicker reveal d1">A brand-new gaming community - founding members wanted</p>
           <h1 className="reveal d2 mt-6 text-[clamp(38px,7vw,76px)] font-extrabold leading-[1.02] uppercase">
