@@ -1,4 +1,7 @@
-# Chaotic Gaming
+# Chaotic Minds Gaming
+
+The official gaming community website for **Chaotic Minds Gaming (CMG)**, a gaming division of Chaotic Minds Collective.
+
 
 Community built by gamers, for gamers.
 
