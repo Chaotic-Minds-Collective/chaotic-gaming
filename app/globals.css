@@ -260,3 +260,16 @@ h1, h2, h3, .font-display { font-family: var(--font-display), sans-serif; }
   .reveal, .aurora::before, .aurora::after, .marquee-track, .crest-ring, .crest-ring > * { animation: none; }
   .reveal { opacity: 1; }
 }
+
+
+/* CSP-safe decorative styles */
+.game-card-art {
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(160,32,240,0.35), transparent 60%),
+    radial-gradient(ellipse at 80% 90%, rgba(0,229,255,0.25), transparent 55%),
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0 2px, transparent 2px 14px);
+}
+
+.discord-widget-frame {
+  border: 0;
+}

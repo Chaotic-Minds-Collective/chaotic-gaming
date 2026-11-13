@@ -37,9 +37,8 @@ export default function Discord() {
           <div className="mx-auto mt-6 w-full max-w-[350px]">
             <iframe
               src="https://discord.com/widget?id=1565121939448533223&theme=dark"
-              className="block h-[500px] w-full"
+              className="discord-widget-frame block h-[500px] w-full"
               sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
-              style={{ border: 0 }}
               title="Chaotic Gaming Discord widget"
               loading="lazy"
             />

@@ -15,8 +15,7 @@ export default function Games() {
         <div className="mt-12 grid gap-6 md:grid-cols-3">
           {games.map((g, i) => (
             <Link key={g.slug} href={`/games/${g.slug}`} className={`card cut block reveal d${i + 2}`}>
-              <div className="mb-5 flex h-28 items-center justify-center overflow-hidden border border-[rgba(160,32,240,0.25)]"
-                   style={{ background: `radial-gradient(ellipse at 30% 20%, rgba(160,32,240,0.35), transparent 60%), radial-gradient(ellipse at 80% 90%, rgba(0,229,255,0.25), transparent 55%), repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0 2px, transparent 2px 14px)` }}>
+              <div className="game-card-art mb-5 flex h-28 items-center justify-center overflow-hidden border border-[rgba(160,32,240,0.25)]">
                 <span className="font-gothic text-5xl">{g.name.charAt(0)}</span>
               </div>
               <span className="kicker">{g.genre}</span>
