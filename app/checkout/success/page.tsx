@@ -5,10 +5,10 @@ export const dynamic = "force-dynamic";
 export default function CheckoutSuccessPage() {
   return (
     <main className="mx-auto min-h-[60vh] max-w-3xl px-6 py-20">
-      <p className="text-sm uppercase tracking-[0.25em] text-cyan-400">Chaotic Gaming</p>
+      <p className="text-sm uppercase tracking-[0.25em] text-cyan-400">Chaotic Minds Gaming</p>
       <h1 className="mt-3 text-4xl font-bold">Checkout submitted</h1>
       <p className="mt-5 text-white/70">
-        Stripe returned you to Chaotic Gaming. Core verifies the signed payment notification before marking an order paid or granting any items. Your account may take a short moment to update.
+        Stripe returned you to Chaotic Minds Gaming. Core verifies the signed payment notification before marking an order paid or granting any items. Your account may take a short moment to update.
       </p>
       <p className="mt-3 text-sm text-white/55">
         The return page itself does not confirm payment and cannot grant entitlements.

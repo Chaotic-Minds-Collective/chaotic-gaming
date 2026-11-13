@@ -41,7 +41,7 @@ export default async function ModsPage() {
 
   return (
     <main className="mx-auto min-h-[60vh] max-w-6xl px-6 py-16">
-      <p className="text-sm uppercase tracking-[0.25em] text-cyan-400">Chaotic Gaming</p>
+      <p className="text-sm uppercase tracking-[0.25em] text-cyan-400">Chaotic Minds Gaming</p>
       <h1 className="mt-3 text-4xl font-bold">Mods & server plugins</h1>
       <p className="mt-3 max-w-2xl text-white/65">
         Discover server-side features across the game network. Compatibility and installation status will appear as each integration is validated.

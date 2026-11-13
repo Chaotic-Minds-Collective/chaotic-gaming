@@ -50,7 +50,7 @@ export default async function StorePage({ searchParams }: { searchParams: Promis
 
   return (
     <main className="mx-auto min-h-[60vh] max-w-6xl px-6 py-16">
-      <p className="text-sm uppercase tracking-[0.25em] text-cyan-400">Chaotic Gaming</p>
+      <p className="text-sm uppercase tracking-[0.25em] text-cyan-400">Chaotic Minds Gaming</p>
       <h1 className="mt-3 text-4xl font-bold">Player store</h1>
       <p className="mt-3 max-w-2xl text-white/65">
         Digital items and game entitlements are managed through your shared player account.

@@ -37,7 +37,7 @@ export default function LoginPage() {
   return (
     <main className="mx-auto min-h-[60vh] max-w-lg px-6 py-16">
       <h1 className="text-3xl font-bold">Sign in</h1>
-      <p className="mt-2 text-white/65">Access your Chaotic Gaming player account.</p>
+      <p className="mt-2 text-white/65">Access your Chaotic Minds Gaming player account.</p>
       <form onSubmit={submit} className="mt-8 space-y-5">
         <label className="block text-sm">Username
           <input name="username" autoComplete="username" required minLength={3} maxLength={32} className="mt-2 w-full rounded-lg border border-white/20 bg-black/40 px-4 py-3" />

@@ -21,7 +21,7 @@ const sections = [
   {
     title: "Age and access",
     points: [
-      "Chaotic Gaming is for members aged 13 and older. Anyone under 13 may not join.",
+      "Chaotic Minds Gaming is for members aged 13 and older. Anyone under 13 may not join.",
       "Members aged 13–17 must have permission from a parent or legal guardian. Staff confirmation through the separate consent process is required before access is approved.",
       "Members aged 18 and older may use general community spaces. Any adult-only spaces are restricted to adults and are not available to minors.",
       "Never pretend to be older, bypass age restrictions, or ask another member to do so.",
@@ -51,7 +51,7 @@ export default function Rules() {
         <h1 className="section-title reveal d1 mt-3 text-center">Community Rules</h1>
         <div className="section-rule reveal d1 mx-auto" />
         <p className="reveal d2 mt-8 text-center text-[var(--muted)]">
-          Chaotic Gaming is built by gamers, for gamers. Everyone deserves a place to play without being harassed,
+          Chaotic Minds Gaming is built by gamers, for gamers. Everyone deserves a place to play without being harassed,
           pressured, or put at risk. Joining the community means following these rules.
         </p>
 

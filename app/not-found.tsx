@@ -8,7 +8,7 @@ export default function NotFound() {
       <div className="relative mx-auto max-w-xl">
         <div className="reveal crest-ring mx-auto h-24 w-24">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={BADGE} alt="Chaotic Gaming crest" className="h-full w-full rounded-full" />
+          <img src={BADGE} alt="Chaotic Minds Gaming crest" className="h-full w-full rounded-full" />
         </div>
         <p className="kicker reveal d1 mt-10">Lost in the chaos</p>
         <h1 className="reveal d2 mt-4 text-[clamp(40px,8vw,72px)] font-extrabold uppercase leading-none">

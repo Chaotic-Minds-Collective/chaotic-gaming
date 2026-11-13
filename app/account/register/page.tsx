@@ -46,7 +46,7 @@ export default function RegisterPage() {
   return (
     <main className="mx-auto min-h-[60vh] max-w-lg px-6 py-16">
       <h1 className="text-3xl font-bold">Create your player account</h1>
-      <p className="mt-2 text-white/65">One account for the Chaotic Gaming network.</p>
+      <p className="mt-2 text-white/65">One account for the Chaotic Minds Gaming network.</p>
       <form onSubmit={submit} className="mt-8 space-y-5">
         <label className="block text-sm">Username
           <input name="username" autoComplete="username" required minLength={3} maxLength={32} pattern="[A-Za-z0-9_]+" className="mt-2 w-full rounded-lg border border-white/20 bg-black/40 px-4 py-3" />
