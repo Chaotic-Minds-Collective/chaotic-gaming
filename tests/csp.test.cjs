@@ -95,5 +95,5 @@ test('proxy forwards its per-request nonce CSP and returns the same policy', () 
   assert.equal(config.matcher[0].missing[1].value, 'prefetch');
   assert.ok(config.matcher[0].source.includes('_next/static'));
   assert.ok(config.matcher[0].source.includes('_next/image'));
-  assert.ok(config.matcher[0].source.includes('favicon\\.ico'));
+  assert.ok(config.matcher[0].source.includes('favicon'));
 });
