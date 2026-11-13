@@ -7,22 +7,6 @@ const securityHeaders = [
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=(), payment=()",
   },
-  {
-    key: "Content-Security-Policy",
-    value: [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "font-src 'self' data: https://fonts.gstatic.com",
-      "img-src 'self' data: blob:",
-      "connect-src 'self' https://va.vercel-scripts.com",
-      "frame-src 'self' https://discord.com",
-      "frame-ancestors 'none'",
-      "base-uri 'self'",
-      "form-action 'self'",
-      "upgrade-insecure-requests",
-    ].join("; "),
-  },
 ];
 
 const nextConfig = {
@@ -38,7 +22,11 @@ const nextConfig = {
     return [
       // Browsers probe /favicon.ico by default; serve the Glitch icon there.
       // Temporary redirect so a real .ico can replace it later without cache pain.
-      { source: "/favicon.ico", destination: "/glitch-icon.png", permanent: false },
+      {
+        source: "/favicon.ico",
+        destination: "/glitch-icon.png",
+        permanent: false,
+      },
     ];
   },
 };
