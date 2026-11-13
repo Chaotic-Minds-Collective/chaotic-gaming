@@ -19,7 +19,7 @@ export default function Discord() {
       <div className="relative mx-auto max-w-3xl text-center">
         <div className="reveal crest-ring mx-auto h-24 w-24">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={BADGE} alt="Chaotic Gaming crest" className="h-full w-full rounded-full" />
+          <img src={BADGE} alt="Chaotic Minds Gaming crest" className="h-full w-full rounded-full" />
         </div>
         <p className="kicker reveal d1 mt-8">The gates are open</p>
         <h1 className="section-title reveal d1 mt-3">Join the Discord</h1>
@@ -39,7 +39,7 @@ export default function Discord() {
               src="https://discord.com/widget?id=1565121939448533223&theme=dark"
               className="discord-widget-frame block h-[500px] w-full"
               sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
-              title="Chaotic Gaming Discord widget"
+              title="Chaotic Minds Gaming Discord widget"
               loading="lazy"
             />
           </div>
