@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { connection } from "next/server";
 import { Unbounded, Pirata_One, Sora, JetBrains_Mono } from "next/font/google";
 import { DISCORD_INVITE, BADGE, FAVICON, OG_IMAGE } from "@/lib/site";
 import "./globals.css";
@@ -52,7 +53,9 @@ const nav = [
   { href: "/about", label: "About" },
 ];
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  await connection();
+
   return (
     <html lang="en" className={`${display.variable} ${gothic.variable} ${body.variable} ${mono.variable}`}>
       <body className="grain">
