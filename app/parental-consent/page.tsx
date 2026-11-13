@@ -20,7 +20,7 @@ export default function ParentalConsent() {
         <div className="card cut reveal d2 mt-8">
           <h2 className="text-xl font-bold uppercase tracking-wide">Who can join?</h2>
           <ul className="mt-5 space-y-3 text-sm text-[var(--muted)]">
-            <li>• Anyone under 13 is not permitted to join Chaotic Gaming.</li>
+            <li>• Anyone under 13 is not permitted to join Chaotic Minds Gaming.</li>
             <li>• Members aged 13–17 need permission from a parent or legal guardian, with staff confirmation before Discord access is approved.</li>
             <li>• Members aged 18 and older may join the general community. Adult-only spaces, if offered, are restricted to adults.</li>
           </ul>
