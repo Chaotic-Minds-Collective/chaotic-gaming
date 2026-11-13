@@ -13,11 +13,21 @@ const code = ts.transpileModule(
   fs.readFileSync(path.join(__dirname, '..', 'proxy.ts'), 'utf8'),
   { compilerOptions: { module: ts.ModuleKind.CommonJS } },
 ).outputText;
-vm.runInNewContext(code, { module: proxyModule, exports: proxyModule.exports, require });
+const cspModule = { exports: {} };
+const cspCode = ts.transpileModule(
+  fs.readFileSync(path.join(__dirname, '..', 'lib/csp.ts'), 'utf8'),
+  { compilerOptions: { module: ts.ModuleKind.CommonJS } },
+).outputText;
+vm.runInNewContext(cspCode, { module: cspModule, exports: cspModule.exports, require });
+vm.runInNewContext(code, {
+  module: proxyModule,
+  exports: proxyModule.exports,
+  require: (name) => name === './lib/csp' ? cspModule.exports : require(name),
+});
 
 test('CSP covers document and lookalike paths while excluding framework assets', () => {
   for (const pathname of [
-    '/', '/events', '/missing', '/faviconXico', '/favicon.ico-extra',
+    '/', '/events', '/missing', '/missingjs', '/roadmap', '/faviconXico', '/favicon.ico-extra',
     '/favicon.ico/extra', '/_next/static-extra', '/_next/image-extra',
   ]) {
     assert.equal(unstable_doesMiddlewareMatch({
@@ -25,7 +35,7 @@ test('CSP covers document and lookalike paths while excluding framework assets',
     }), true, pathname);
   }
   for (const pathname of [
-    '/favicon.ico', '/favicon.ico?v=1', '/_next/static',
+    '/favicon.ico', '/favicon.ico?v=1', '/styles.css', '/script.js', '/badge.png', '/_next/static',
     '/_next/static/chunks/app.js', '/_next/image', '/_next/image?url=%2Fbadge.png&w=64&q=75',
   ]) {
     assert.equal(unstable_doesMiddlewareMatch({

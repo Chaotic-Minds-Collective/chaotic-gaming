@@ -20,7 +20,7 @@ export function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     {
-      source: "/((?!_next/static|_next/image|favicon\.ico$|.*\.(?:avif|bmp|css|csv|eot|gif|html?|ico|jpe?g|js|json|map|mp[34]|pdf|png|svg|txt|wasm|webmanifest|webm|webp|woff2?|ttf|xml|zip)$).*)",
+      source: "/((?!_next/static(?:/|$)|_next/image(?:/|$)|favicon\\.ico$|.*\\.(?:avif|bmp|css|csv|eot|gif|html?|ico|jpe?g|js|json|map|mp[34]|pdf|png|svg|txt|wasm|webmanifest|webm|webp|woff2?|ttf|xml|zip)$).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },
