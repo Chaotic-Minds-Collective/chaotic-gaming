@@ -5,7 +5,7 @@ The official gaming community website for **Chaotic Minds Gaming (CMG)**, a gami
 
 Community built by gamers, for gamers.
 
-Chaotic Gaming is a division of Chaotic Minds Collective. The website is the community's public front door and Discord is the primary community space.
+Chaotic Minds Gaming is a division of Chaotic Minds Collective. The website is the community's public front door and Discord is the primary community space.
 
 ## Stack
 
