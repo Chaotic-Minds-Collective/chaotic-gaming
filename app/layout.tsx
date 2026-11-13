@@ -11,6 +11,9 @@ const gothic = Pirata_One({ subsets: ["latin"], weight: "400", variable: "--font
 const body = Sora({ subsets: ["latin"], variable: "--font-body" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
+// Render each document with the request nonce supplied by the CSP proxy.
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Chaotic Gaming - Community built by gamers, for gamers",
   description:
