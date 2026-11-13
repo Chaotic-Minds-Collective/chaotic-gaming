@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { connection } from "next/server";
 import { Unbounded, Pirata_One, Sora, JetBrains_Mono } from "next/font/google";
 import { DISCORD_INVITE, BADGE, FAVICON, OG_IMAGE } from "@/lib/site";
 import "./globals.css";
@@ -10,6 +11,9 @@ const display = Unbounded({ subsets: ["latin"], variable: "--font-display" });
 const gothic = Pirata_One({ subsets: ["latin"], weight: "400", variable: "--font-gothic" });
 const body = Sora({ subsets: ["latin"], variable: "--font-body" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
+
+// Render each document with the request nonce supplied by the CSP proxy.
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Chaotic Gaming - Community built by gamers, for gamers",
@@ -49,7 +53,9 @@ const nav = [
   { href: "/about", label: "About" },
 ];
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  await connection();
+
   return (
     <html lang="en" className={`${display.variable} ${gothic.variable} ${body.variable} ${mono.variable}`}>
       <body className="grain">
