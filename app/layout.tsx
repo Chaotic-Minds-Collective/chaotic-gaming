@@ -16,23 +16,23 @@ const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Chaotic Gaming - Community built by gamers, for gamers",
+  title: "Chaotic Minds Gaming - Community built by gamers, for gamers",
   description:
-    "Chaotic Gaming: a brand-new gaming community forming now. 7 Days to Die, ARK, Atlas hubs are open - founding members shape our servers, rules, and events.",
+    "Chaotic Minds Gaming: a brand-new gaming community forming now. 7 Days to Die, ARK, Atlas hubs are open - founding members shape our servers, rules, and events.",
   icons: { icon: FAVICON },
   metadataBase: new URL("https://chaoticmindsgaming.com"),
   openGraph: {
-    title: "Chaotic Gaming - Community built by gamers, for gamers",
+    title: "Chaotic Minds Gaming - Community built by gamers, for gamers",
     description:
       "A brand-new gaming community forming now. 7 Days to Die, ARK, and Atlas hubs are open - founding members shape our servers, rules, and events.",
     url: "https://chaoticmindsgaming.com",
-    siteName: "Chaotic Gaming",
-    images: [{ url: OG_IMAGE, width: 1920, height: 1080, alt: "Chaotic Gaming - Community built by gamers" }],
+    siteName: "Chaotic Minds Gaming",
+    images: [{ url: OG_IMAGE, width: 1920, height: 1080, alt: "Chaotic Minds Gaming - Community built by gamers" }],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Chaotic Gaming - Community built by gamers, for gamers",
+    title: "Chaotic Minds Gaming - Community built by gamers, for gamers",
     description:
       "A brand-new gaming community forming now. 7 Days to Die, ARK, and Atlas hubs are open.",
     images: [OG_IMAGE],
@@ -63,7 +63,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between">
             <Link href="/" className="flex items-center gap-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={BADGE} alt="Chaotic Gaming crest" className="h-11 w-11 rounded-full shadow-[0_0_18px_rgba(0,229,255,0.45)]" />
+              <img src={BADGE} alt="Chaotic Minds Gaming crest" className="h-11 w-11 rounded-full shadow-[0_0_18px_rgba(0,229,255,0.45)]" />
               <span className="font-display text-base font-extrabold uppercase tracking-[0.18em] grad-text">
                 Chaotic<span className="font-gothic text-2xl tracking-normal"> Gaming</span>
               </span>
@@ -88,8 +88,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <footer className="border-t border-[rgba(160,32,240,0.22)] bg-[var(--coal)] px-6 py-14 text-center">
           <div className="mx-auto max-w-3xl">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={BADGE} alt="Chaotic Gaming crest" className="mx-auto mb-6 h-20 w-20 rounded-full shadow-[0_0_30px_rgba(160,32,240,0.5)]" />
-            <p className="font-display text-sm font-extrabold uppercase tracking-[0.25em] grad-text">Chaotic Gaming</p>
+            <img src={BADGE} alt="Chaotic Minds Gaming crest" className="mx-auto mb-6 h-20 w-20 rounded-full shadow-[0_0_30px_rgba(160,32,240,0.5)]" />
+            <p className="font-display text-sm font-extrabold uppercase tracking-[0.25em] grad-text">Chaotic Minds Gaming</p>
             <p className="font-gothic mt-3 text-2xl text-[var(--text)]">Community built by gamers, for gamers.</p>
             <p className="font-mono2 mt-5 text-[11px] uppercase tracking-[0.3em] text-[var(--muted)]">
               A Chaotic Minds Collective division
